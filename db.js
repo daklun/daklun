@@ -185,12 +185,14 @@ const db = {
                         .insert([insertPayload]);
                     error = err;
                 }
-                if (!error) return { success: true };
+                if (!error) return { success: true, savedToCloud: true };
+                console.error("Supabase saveMenuItem returned error:", error);
             } catch (err) {
-                console.error("Supabase saveMenuItem error, falling back:", err);
+                console.error("Supabase saveMenuItem exception, falling back:", err);
             }
         }
 
+        // Fallback: save to localStorage only (won't sync to other devices)
         let localData = localStorage.getItem("angkringan_menu");
         let items = localData ? JSON.parse(localData) : [...DEFAULT_MENU_SEED];
         
@@ -206,7 +208,7 @@ const db = {
         }
         
         localStorage.setItem("angkringan_menu", JSON.stringify(items));
-        return { success: true, item: payload };
+        return { success: true, savedToCloud: false, item: payload };
     },
 
     async updateMenuStocks(stockUpdates) {

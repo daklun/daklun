@@ -141,6 +141,28 @@ function setupTabSwitching() {
     });
 }
 
+// Toast Notification
+function showToast(message, type = "success") {
+    let toast = document.getElementById("admin-toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.id = "admin-toast";
+        toast.style.cssText = `
+            position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+            padding: 14px 20px; border-radius: 10px; font-size: 0.9rem;
+            font-weight: 600; max-width: 380px; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+            transition: opacity 0.4s; opacity: 0; pointer-events: none;
+        `;
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.style.background = type === "success" ? "#16a34a" : type === "warning" ? "#d97706" : "#dc2626";
+    toast.style.color = "#fff";
+    toast.style.opacity = "1";
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => { toast.style.opacity = "0"; }, 4000);
+}
+
 // Helper Currency
 function formatRupiah(number) {
     return new Intl.NumberFormat("id-ID", {
@@ -906,6 +928,11 @@ async function saveMenuItemForm(e) {
         await loadAllData();
         renderStokTables();
         renderDashboardStats();
+        if (res.savedToCloud === false) {
+            showToast("⚠️ Menu tersimpan di lokal saja — foto tidak masuk Supabase! Coba kompres foto lebih kecil (di bawah 1MB).", "warning");
+        } else {
+            showToast("✅ Menu berhasil disimpan ke Supabase Cloud!", "success");
+        }
     } else {
         alert("Gagal menyimpan menu!");
     }
