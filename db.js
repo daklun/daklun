@@ -49,8 +49,8 @@ const DEFAULT_MENU_SEED = [
     { id: 27, name: "Air Mineral", category: "minuman", price: 5000, harga_modal: 2500, stok_sistem: 50, stok_minimum: 5, emoji: "🍼", description: "Air putih dalam kemasan botol higienis dan praktis." }
 ];
 
-const DEFAULT_SUPABASE_URL = "https://xatelgomhdzfnykrhaev.supabase.co";
-const DEFAULT_SUPABASE_KEY = "sb_publishable_9Vvjj1NqFwit1vRI5sviWw_FR5BzeHM";
+const DEFAULT_SUPABASE_URL = "https://rtacieyyeeniruvepkfx.supabase.co";
+const DEFAULT_SUPABASE_KEY = "sb_publishable_ACpE_lhJ8VYlBhD5hfwQ_A_RKZWMm1v";
 
 const db = {
     _supabaseClient: null,
