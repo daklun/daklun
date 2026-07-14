@@ -1,0 +1,1128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Operasional - Angkringan Mas Eja</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js CDN for Laporan Keuangan -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Specific overrides for Admin dashboard to look exceptionally clean */
+        .admin-wrapper {
+            padding-top: 110px;
+            padding-bottom: 80px;
+            min-height: 100vh;
+        }
+        
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .admin-header-title h1 {
+            font-size: 2.2rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-header-title p {
+            color: var(--text-secondary);
+            margin-top: 4px;
+            font-size: 0.95rem;
+        }
+
+        .db-badge {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .db-badge.connected {
+            color: var(--success);
+            border-color: rgba(46, 196, 182, 0.3);
+            background: rgba(46, 196, 182, 0.05);
+        }
+
+        .db-badge.local {
+            color: var(--gold);
+            border-color: rgba(255, 190, 11, 0.3);
+            background: rgba(255, 190, 11, 0.05);
+        }
+
+        /* Admin Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 12px 20px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            position: relative;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-btn.active {
+            color: var(--accent);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background-color: var(--accent);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Table styling */
+        .table-container {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            overflow-x: auto;
+            box-shadow: var(--glass-shadow);
+            margin-bottom: 24px;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .admin-table th {
+            background-color: var(--bg-tertiary);
+            font-family: var(--font-heading);
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 1px;
+        }
+
+        .admin-table tbody tr {
+            transition: var(--transition-fast);
+        }
+
+        .admin-table tbody tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        .td-emoji {
+            font-size: 1.8rem;
+            text-align: center;
+            width: 80px;
+        }
+
+        .td-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .category-pill {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background-color: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+
+        .category-pill.utama {
+            color: var(--accent);
+            border-color: rgba(255, 123, 0, 0.2);
+        }
+
+        .category-pill.sate {
+            color: var(--success);
+            border-color: rgba(46, 196, 182, 0.2);
+        }
+
+        .category-pill.minuman {
+            color: #00b4d8;
+            border-color: rgba(0, 180, 216, 0.2);
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-icon:hover {
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .btn-icon.edit:hover {
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-icon.delete:hover {
+            background-color: var(--accent-red);
+            border-color: var(--accent-red);
+        }
+
+        /* Config Form Panel */
+        .config-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            margin-bottom: 30px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .sql-box {
+            background: #040406;
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: 20px;
+            margin-top: 16px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            position: relative;
+        }
+
+        .btn-copy {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .btn-copy:hover {
+            color: #fff;
+            background-color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* Modals & Passcode Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .passcode-modal {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 40px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border-color: var(--glass-border);
+            animation: zoomIn 0.3s ease;
+        }
+
+        .form-modal {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-lg);
+            padding: 32px;
+            width: 90%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border-color: var(--glass-border);
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .modal-close:hover {
+            color: var(--text-primary);
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .span-2 {
+            grid-column: span 2;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            background-color: rgba(255,255,255,0.02);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 12px 16px;
+            border-radius: var(--border-radius-md);
+            width: 100%;
+            font-size: 0.95rem;
+            transition: var(--transition-fast);
+            font-family: var(--font-body);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 2px var(--accent-glow);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        /* Alert Box */
+        .alert-box {
+            background: rgba(255, 183, 3, 0.05);
+            border: 1px solid rgba(255, 183, 3, 0.25);
+            color: var(--gold);
+            border-radius: var(--border-radius-md);
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .alert-box.danger {
+            background: rgba(239, 35, 60, 0.05);
+            border: 1px solid rgba(239, 35, 60, 0.25);
+            color: var(--accent-red);
+        }
+
+        .alert-box i {
+            font-size: 1.5rem;
+        }
+
+        /* POS Kasir Grid Split */
+        .pos-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 32px;
+            align-items: start;
+        }
+
+        .pos-menu-selector {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-xl);
+            padding: 24px;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .pos-menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 16px;
+            max-height: 580px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+
+        .pos-menu-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-md);
+            padding: 16px 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-fast);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pos-menu-item:hover {
+            border-color: var(--accent);
+            background-color: var(--accent-glow);
+            transform: translateY(-2px);
+        }
+
+        .pos-menu-emoji {
+            font-size: 2.2rem;
+        }
+
+        .pos-menu-name {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.3;
+            height: 36px;
+            overflow: hidden;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .pos-menu-price {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .pos-menu-stock {
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 50px;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .pos-menu-stock.critical {
+            color: var(--accent-red);
+            background: rgba(239, 35, 60, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Passcode/Supabase Authentication Modal -->
+    <div class="modal-overlay" id="auth-overlay">
+        <div class="passcode-modal">
+            <i class="fa-solid fa-lock-open text-gold" style="font-size: 3rem; margin-bottom: 20px; display: inline-block;"></i>
+            <h3>Keamanan Dasbor</h3>
+            <p id="auth-desc" style="color: var(--text-secondary); font-size: 0.9rem; margin: 10px 0 24px 0;">Masukkan PIN Admin Lokal atau masuk dengan Supabase Cloud.</p>
+            
+            <div id="auth-fields">
+                <div class="form-group">
+                    <label for="admin-pin">PIN Kasir / Owner:</label>
+                    <input type="password" id="admin-pin" class="form-control text-center" placeholder="Ketik PIN lokal (Default: 1234)" style="font-size: 1.5rem; letter-spacing: 4px;">
+                </div>
+            </div>
+
+            <div id="auth-error" style="color: var(--accent-red); font-size: 0.85rem; margin: 10px 0; display: none;">PIN yang Anda masukkan salah.</div>
+            
+            <button class="btn-primary btn-block" id="btn-login-submit">Verifikasi Masuk</button>
+        </div>
+    </div>
+
+    <!-- Edit/Add Menu Item Modal -->
+    <div class="modal-overlay" id="item-modal" style="display: none;">
+        <div class="form-modal">
+            <button class="modal-close" id="modal-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            <h3 id="modal-title" style="margin-bottom: 24px;"><i class="fa-solid fa-file-pen text-orange"></i> Edit Menu Item</h3>
+            <form id="item-form">
+                <input type="hidden" id="item-id">
+                
+                <div class="form-grid">
+                    <div class="form-group span-2">
+                        <label for="item-name">Nama Menu:</label>
+                        <input type="text" id="item-name" class="form-control" placeholder="Contoh: Sate Telur Puyuh" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-category">Kategori:</label>
+                        <select id="item-category" class="form-control" required>
+                            <option value="utama">Nasi & Mie</option>
+                            <option value="sate">Sate-Satean</option>
+                            <option value="minuman">Wedang & Es</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-emoji">Emoji Ikon:</label>
+                        <input type="text" id="item-emoji" class="form-control" placeholder="Contoh: 🍢" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-price">Harga Jual (Rp):</label>
+                        <input type="number" id="item-price" class="form-control" placeholder="Contoh: 3000" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-modal-price">Harga Modal (Beli) (Rp):</label>
+                        <input type="number" id="item-modal-price" class="form-control" placeholder="Contoh: 1500" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-stock">Stok Awal Sistem:</label>
+                        <input type="number" id="item-stock" class="form-control" placeholder="Contoh: 50" min="0" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="item-min-stock">Stok Minimum Peringatan:</label>
+                        <input type="number" id="item-min-stock" class="form-control" placeholder="Contoh: 10" min="0" required>
+                    </div>
+
+                    <div class="form-group span-2">
+                        <label for="item-desc">Deskripsi Menu:</label>
+                        <textarea id="item-desc" class="form-control" placeholder="Rincian rasa/porsi..." required></textarea>
+                    </div>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" id="btn-modal-cancel">Batal</button>
+                    <button type="submit" class="btn-primary" id="btn-modal-save">Simpan Menu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Receipt Print Preview Modal -->
+    <div class="modal-overlay" id="receipt-modal" style="display: none;">
+        <div class="form-modal" style="max-width: 420px; background-color: #121216;">
+            <button class="modal-close" id="receipt-close-btn"><i class="fa-solid fa-xmark"></i></button>
+            <h3 style="margin-bottom: 20px; text-align: center;"><i class="fa-solid fa-print text-success"></i> Struk Transaksi Kasir</h3>
+            
+            <div id="receipt-paper-wrapper">
+                <!-- Receipt injected here -->
+            </div>
+
+            <div class="modal-actions" style="justify-content: center; margin-top: 24px;">
+                <button type="button" class="btn-secondary" id="btn-print-action"><i class="fa-solid fa-print"></i> Cetak Struk</button>
+                <button type="button" class="btn-primary" id="btn-print-close">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="navbar-container">
+        <div class="navbar-wrapper container">
+            <a href="index.html" class="logo">
+                <span class="logo-accent"><i class="fa-solid fa-fire-burner"></i></span> Angkringan<span class="highlight">Mas Eja</span>
+            </a>
+            <div class="db-badge local" id="connection-status">
+                <i class="fa-solid fa-circle-notch fa-spin"></i> Memeriksa DB...
+            </div>
+            <div class="nav-actions">
+                <a href="index.html" class="btn-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Web Utama</a>
+                <button id="btn-logout" class="btn-secondary btn-sm" style="background-color: var(--accent-red); color: white; border-color: var(--accent-red); display: none;"><i class="fa-solid fa-right-from-bracket"></i> Keluar</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="admin-wrapper container">
+        
+        <div class="admin-header">
+            <div class="admin-header-title">
+                <h1><i class="fa-solid fa-gauge-high text-orange"></i> Panel Manajemen Operasional</h1>
+                <p>Kelola penjualan, inventori sate/nasi, penagihan bon, dan rekap laba-rugi.</p>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="admin-tabs">
+            <button class="tab-btn active" data-tab="dasbor"><i class="fa-solid fa-chart-line"></i> Ringkasan</button>
+            <button class="tab-btn" data-tab="kasir"><i class="fa-solid fa-cash-register"></i> Kasir POS</button>
+            <button class="tab-btn" data-tab="stok"><i class="fa-solid fa-warehouse"></i> Inventori & Basi</button>
+            <button class="tab-btn" data-tab="bon"><i class="fa-solid fa-book"></i> Catatan Bon</button>
+            <button class="tab-btn" data-tab="laporan"><i class="fa-solid fa-wallet"></i> Laba Rugi</button>
+            <button class="tab-btn" data-tab="db"><i class="fa-solid fa-database"></i> Database</button>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- TAB 1: DASBOR (SUMMARY) -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content active" id="content-dasbor">
+            <!-- Alert Boxes for Action Items -->
+            <div id="critical-stock-alerts"></div>
+            <div id="overdue-bon-alerts"></div>
+
+            <div class="admin-stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total"><i class="fa-solid fa-rupiah-sign"></i></div>
+                    <div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Omzet Hari Ini</p>
+                        <h4 id="stat-today-revenue" style="font-size: 1.4rem; font-weight: 700; margin-top: 2px;">Rp 0</h4>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon success"><i class="fa-solid fa-chart-bar"></i></div>
+                    <div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Transaksi Sukses</p>
+                        <h4 id="stat-today-transactions" style="font-size: 1.4rem; font-weight: 700; margin-top: 2px;">0 Transaksi</h4>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon info"><i class="fa-solid fa-book-open"></i></div>
+                    <div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Piutang Bon Aktif</p>
+                        <h4 id="stat-active-bons" style="font-size: 1.4rem; font-weight: 700; margin-top: 2px;">Rp 0</h4>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon danger"><i class="fa-solid fa-trash-can"></i></div>
+                    <div>
+                        <p style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 500;">Kerugian Makanan Basi</p>
+                        <h4 id="stat-today-waste-cost" style="font-size: 1.4rem; font-weight: 700; margin-top: 2px;">Rp 0</h4>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity Tables Split -->
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; margin-top: 20px;">
+                <div>
+                    <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Transaksi Hari Ini</h3>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Waktu</th>
+                                    <th>Metode</th>
+                                    <th>Total Item</th>
+                                    <th>Total Belanja</th>
+                                    <th>Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="today-transactions-rows">
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted" style="padding: 24px 0;">Belum ada transaksi hari ini.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div>
+                    <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-circle-exclamation text-danger"></i> Stok Kritis (<span id="critical-stock-count">0</span>)</h3>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Menu</th>
+                                    <th class="text-center">Sisa Stok</th>
+                                    <th class="text-center">Min.</th>
+                                </tr>
+                            </thead>
+                            <tbody id="critical-stock-rows">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted" style="padding: 24px 0;">Semua stok aman.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- TAB 2: KASIR POS INTERNAL -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content" id="content-kasir">
+            <div class="pos-grid">
+                <!-- Left: Selector Menu -->
+                <div class="pos-menu-selector">
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <input type="text" id="pos-search" class="form-control" placeholder="Cari menu...">
+                    </div>
+                    <div class="menu-filters" style="margin-bottom: 20px; font-size: 0.8rem;">
+                        <button class="filter-btn active" data-pos-filter="all" style="padding: 4px 12px;">Semua</button>
+                        <button class="filter-btn" data-pos-filter="utama" style="padding: 4px 12px;">Nasi/Mie</button>
+                        <button class="filter-btn" data-pos-filter="sate" style="padding: 4px 12px;">Sate</button>
+                        <button class="filter-btn" data-pos-filter="minuman" style="padding: 4px 12px;">Wedang</button>
+                    </div>
+                    
+                    <div class="pos-menu-grid" id="pos-menu-grid-container">
+                        <!-- POS Menu buttons injected here -->
+                    </div>
+                </div>
+
+                <!-- Right: Calculator & Checkout -->
+                <div class="cart-calculator-panel" style="padding: 24px;">
+                    <div class="cart-header" style="margin-bottom: 16px;">
+                        <h3><i class="fa-solid fa-basket-shopping"></i> Keranjang Kasir</h3>
+                        <button class="btn-clear-cart" id="pos-clear-cart-btn"><i class="fa-solid fa-trash-can"></i> Kosongkan</button>
+                    </div>
+
+                    <div class="cart-items-list" id="pos-cart-items" style="max-height: 200px; margin-bottom: 16px;">
+                        <!-- Items in checkout -->
+                        <div class="text-center text-muted" style="padding: 24px 0;">Pilih menu di samping kiri untuk menginput keranjang.</div>
+                    </div>
+
+                    <div class="cart-totals" style="margin-bottom: 20px;">
+                        <div class="total-row highlight">
+                            <span>Subtotal</span>
+                            <span id="pos-subtotal">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <div class="checkout-form">
+                        <div class="form-group">
+                            <label for="pos-payment-method">Metode Pembayaran:</label>
+                            <select id="pos-payment-method" class="form-control">
+                                <option value="Tunai">Tunai (Cash)</option>
+                                <option value="QRIS">QRIS / E-Wallet</option>
+                                <option value="Transfer BCA">Transfer BCA</option>
+                                <option value="Bon Hutang">Bon Hutang (Piutang)</option>
+                            </select>
+                        </div>
+
+                        <!-- Cash Payment Split -->
+                        <div id="pos-cash-input-group">
+                            <div class="form-grid" style="margin-bottom: 16px;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label for="pos-amount-paid">Uang Diterima:</label>
+                                    <input type="number" id="pos-amount-paid" class="form-control" placeholder="Contoh: 50000" min="0">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label>Kembalian:</label>
+                                    <input type="text" id="pos-amount-change" class="form-control" style="background: rgba(255,255,255,0.02); color: var(--success); font-weight: 700;" value="Rp 0" readonly>
+                                </div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-bottom: 16px;">
+                                <button type="button" class="btn-secondary btn-sm" onclick="quickCash(10000)">10k</button>
+                                <button type="button" class="btn-secondary btn-sm" onclick="quickCash(20000)">20k</button>
+                                <button type="button" class="btn-secondary btn-sm" onclick="quickCash(50000)">50k</button>
+                                <button type="button" class="btn-secondary btn-sm" onclick="quickCash(100000)">100k</button>
+                            </div>
+                        </div>
+
+                        <!-- Bon Debt Input Split -->
+                        <div id="pos-bon-input-group" style="display: none;">
+                            <div class="form-group">
+                                <label for="pos-bon-name">Nama Pelanggan Bon:</label>
+                                <input type="text" id="pos-bon-name" class="form-control" placeholder="Nama Pelanggan...">
+                            </div>
+                            <div class="form-group">
+                                <label for="pos-bon-whatsapp">WhatsApp Pelanggan:</label>
+                                <input type="text" id="pos-bon-whatsapp" class="form-control" placeholder="Contoh: 081234567890">
+                            </div>
+                        </div>
+
+                        <button class="btn-primary btn-block btn-large" id="btn-complete-checkout"><i class="fa-solid fa-circle-check"></i> Proses Transaksi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- TAB 3: INVENTORI & MANAGEMENT BASI -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content" id="content-stok">
+            <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; align-items: start;">
+                <!-- Left: CRUD Menu Items -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3>Daftar Inventori Sistem</h3>
+                        <button class="btn-primary btn-sm" id="btn-add-menu-item-modal"><i class="fa-solid fa-plus"></i> Tambah Menu Baru</button>
+                    </div>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Menu</th>
+                                    <th>Kategori</th>
+                                    <th>Harga Jual</th>
+                                    <th>Harga Modal</th>
+                                    <th class="text-center">Stok</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="crud-menu-rows">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted" style="padding: 24px 0;">Memuat data...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right: Food Waste input (Basi) -->
+                <div class="config-card">
+                    <h3><i class="fa-solid fa-dumpster-fire text-danger"></i> Catat Makanan Basi Akhir Shift</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 8px 0 20px 0;">
+                        Masukkan sisa fisik makanan basah (nasi bakar/sate) setelah warung tutup. Sistem akan otomatis membandingkan dengan stok sistem, mencatat jumlah basi, dan menghitung kerugian modal.
+                    </p>
+
+                    <form id="food-waste-form">
+                        <div class="form-group">
+                            <label for="waste-item-id">Pilih Menu Makanan:</label>
+                            <select id="waste-item-id" class="form-control" required>
+                                <option value="">-- Pilih Menu Makanan --</option>
+                            </select>
+                        </div>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Stok di Sistem:</label>
+                                <input type="number" id="waste-system-stock" class="form-control" value="0" readonly style="background: rgba(255,255,255,0.02)">
+                            </div>
+                            <div class="form-group">
+                                <label for="waste-physical-stock">Stok Fisik Tersisa:</label>
+                                <input type="number" id="waste-physical-stock" class="form-control" placeholder="Input jumlah fisik..." min="0" required>
+                            </div>
+                        </div>
+
+                        <div class="form-group" id="waste-calculation-result" style="display: none; margin-bottom: 20px; padding: 12px; background: rgba(239,35,60,0.05); border: 1px dashed rgba(239,35,60,0.3); border-radius: var(--border-radius-md); font-size: 0.85rem;">
+                            <!-- Output text injected dynamically -->
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-block" id="btn-save-waste"><i class="fa-solid fa-trash-arrow-up"></i> Catat Makanan Basi</button>
+                    </form>
+
+                    <!-- Waste Log summary -->
+                    <h4 style="margin-top: 32px; margin-bottom: 12px;">Histori Basi Hari Ini</h4>
+                    <div class="table-container" style="margin-bottom: 0; box-shadow: none; border-radius: var(--border-radius-md);">
+                        <table class="admin-table" style="font-size: 0.8rem;">
+                            <thead>
+                                <tr>
+                                    <th>Menu</th>
+                                    <th class="text-center">Jumlah Basi</th>
+                                    <th>Kerugian Modal</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waste-log-rows">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted" style="padding: 12px 0;">Belum ada catatan basi hari ini.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- TAB 4: CATATAN BON (DEBT) -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content" id="content-bon">
+            <h3 style="margin-bottom: 16px;">Pengelolaan Piutang Bon Pelanggan</h3>
+            <div class="table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Pelanggan</th>
+                            <th>WhatsApp</th>
+                            <th>Total Piutang</th>
+                            <th class="text-center">Jatuh Tempo</th>
+                            <th class="text-center">Status</th>
+                            <th class="text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bon-debt-rows">
+                        <tr>
+                            <td colspan="7" class="text-center text-muted" style="padding: 24px 0;">Tidak ada catatan bon hutang aktif.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- TAB 5: LAPORAN KEUANGAN (P&L) -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content" id="content-laporan">
+            <div style="display: grid; grid-template-columns: 1.10fr 0.90fr; gap: 32px; align-items: start;">
+                <!-- Left: Laporan Laba Rugi calculations & Graph -->
+                <div>
+                    <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-file-invoice-dollar"></i> Laporan Laba Rugi Operasional</h3>
+                    <div class="config-card" style="padding: 24px;">
+                        <div style="display: flex; gap: 16px; align-items: center; margin-bottom: 24px;">
+                            <div class="form-group" style="margin-bottom: 0; flex-grow: 1;">
+                                <label for="filter-laporan-tanggal">Pilih Hari Pembukuan:</label>
+                                <input type="date" id="filter-laporan-tanggal" class="form-control">
+                            </div>
+                        </div>
+
+                        <div class="totals-calculation" style="display: flex; flex-direction: column; gap: 12px; border-bottom: 1px solid var(--border-color); padding-bottom: 20px;">
+                            <div class="total-row">
+                                <span>Pendapatan Kotor (Omzet Transaksi + Bon Baru)</span>
+                                <span id="pl-gross-revenue" style="color: #fff; font-weight: 700;">Rp 0</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Harga Pokok Penjualan (HPP Modal Terjual)</span>
+                                <span id="pl-cogs" style="color: var(--text-secondary);">Rp 0</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Total Pengeluaran Harian (Bahan Baku, Gas, Es Batu, dll.)</span>
+                                <span id="pl-total-expenses" style="color: var(--text-secondary);">- Rp 0</span>
+                            </div>
+                            <div class="total-row">
+                                <span>Kerugian Stok Basi (HPP Makanan Terbuang)</span>
+                                <span id="pl-total-waste" style="color: var(--accent-red);">- Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="total-row highlight" style="padding-top: 20px;">
+                            <span>LABA BERSIH HARIAN</span>
+                            <span id="pl-net-profit" style="font-size: 1.6rem; font-weight: 800;">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Chart component -->
+                    <div class="config-card" style="padding: 24px;">
+                        <h3 style="margin-bottom: 20px;"><i class="fa-solid fa-chart-area"></i> Tren Penjualan Harian</h3>
+                        <canvas id="salesChart" style="width: 100%; height: 260px;"></canvas>
+                    </div>
+                </div>
+
+                <!-- Right: Pengeluaran Operasional (Expenses CRUD) -->
+                <div class="config-card">
+                    <h3><i class="fa-solid fa-wallet text-gold"></i> Pengeluaran Operasional Harian</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 8px 0 20px 0;">Catat pengeluaran harian tambahan warung seperti pembelian gas LPG, arang bakar, es batu balok, air galon, dll.</p>
+
+                    <form id="expense-form" style="margin-bottom: 24px;">
+                        <div class="form-group">
+                            <label for="expense-desc">Keterangan Pengeluaran:</label>
+                            <input type="text" id="expense-desc" class="form-control" placeholder="Contoh: Beli Arang 2 Karung" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="expense-amount">Jumlah Pengeluaran (Rp):</label>
+                            <input type="number" id="expense-amount" class="form-control" placeholder="Contoh: 15000" min="0" required>
+                        </div>
+                        <button type="submit" class="btn-primary btn-block"><i class="fa-solid fa-plus"></i> Tambah Pengeluaran</button>
+                    </form>
+
+                    <h4 style="margin-bottom: 12px;">Daftar Pengeluaran Hari Ini</h4>
+                    <div class="table-container" style="margin-bottom: 0; box-shadow: none; border-radius: var(--border-radius-md);">
+                        <table class="admin-table" style="font-size: 0.8rem;">
+                            <thead>
+                                <tr>
+                                    <th>Keterangan</th>
+                                    <th>Jumlah</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="expense-log-rows">
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted" style="padding: 12px 0;">Belum ada pengeluaran hari ini.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
+        <!-- TAB 6: DATABASE SETTINGS -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content" id="content-db">
+            <div class="config-card">
+                <h3><i class="fa-brands fa-supabase text-success" style="font-size: 1.4rem;"></i> Hubungkan ke Cloud Supabase</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin: 8px 0 24px 0;">
+                    Aplikasi ini menyimpan data secara lokal di LocalStorage browser komputer. Masukkan URL proyek dan Anon Key Supabase Anda agar data sinkron di cloud secara real-time.
+                </p>
+                
+                <form id="db-config-form">
+                    <div class="form-group">
+                        <label for="supabase-url">Supabase Project URL:</label>
+                        <input type="url" id="supabase-url" class="form-control" placeholder="https://xxxxxx.supabase.co" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="supabase-key">Supabase API Key (Anon Key):</label>
+                        <input type="password" id="supabase-key" class="form-control" placeholder="Masukkan Anon Public Key proyek Anda..." required>
+                    </div>
+
+                    <div class="modal-actions" style="justify-content: flex-start;">
+                        <button type="submit" class="btn-primary" id="btn-save-db-config">Hubungkan Database</button>
+                        <button type="button" class="btn-secondary" id="btn-reset-db-config" style="color: var(--accent-red); border-color: rgba(255, 62, 29, 0.2);">Reset ke Lokal (LocalStorage)</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="config-card">
+                <h3>📜 SQL Schema Proyek Supabase</h3>
+                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">Buka dashboard Supabase Anda, masuk ke **SQL Editor**, buat query baru, lalu jalankan query SQL berikut untuk membuat struktur database relasional Angkringan Mas Eja:</p>
+                
+                <div class="sql-box" id="sql-schema-code">-- Query SQL Relasional Angkringan Mas Eja
+create table menu_items (
+  id bigint primary key generated always as identity,
+  name text not null,
+  category text not null,
+  price numeric not null,
+  harga_modal numeric not null default 0,
+  stok_sistem integer not null default 0,
+  stok_minimum integer not null default 5,
+  emoji text,
+  description text,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+create table transactions (
+  id bigint primary key generated always as identity,
+  tanggal date not null default current_date,
+  jam time not null default current_time,
+  items jsonb not null,
+  total_harga numeric not null,
+  pembayaran text not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+create table bon_hutang (
+  id bigint primary key generated always as identity,
+  nama_pelanggan text not null,
+  no_whatsapp text,
+  tanggal_bon date not null default current_date,
+  jumlah_hutang numeric not null,
+  sisa_hutang numeric not null,
+  status_lunas boolean not null default false,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+create table expenses (
+  id bigint primary key generated always as identity,
+  tanggal date not null default current_date,
+  keterangan text not null,
+  jumlah numeric not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+create table food_waste (
+  id bigint primary key generated always as identity,
+  tanggal date not null default current_date,
+  menu_item_id bigint references menu_items(id),
+  qty_basi integer not null,
+  kerugian_modal numeric not null,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
+-- Kebijakan RLS Akses Publik (Buka untuk Anon Key)
+alter table menu_items enable row level security;
+alter table transactions enable row level security;
+alter table bon_hutang enable row level security;
+alter table expenses enable row level security;
+alter table food_waste enable row level security;
+
+create policy "menu_select" on menu_items for select using (true);
+create policy "menu_all" on menu_items for all using (true);
+create policy "trans_all" on transactions for all using (true);
+create policy "bon_all" on bon_hutang for all using (true);
+create policy "exp_all" on expenses for all using (true);
+create policy "waste_all" on food_waste for all using (true);</div>
+                <button class="btn-copy" id="btn-copy-sql">Salin SQL Schema</button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-bottom text-center" style="margin-top: 40px; padding: 24px 0; border-top: 1px solid var(--border-color);">
+        <p>&copy; 2026 Angkringan Mas Eja. Panel Dasbor Operasional Terproteksi PIN.</p>
+    </footer>
+
+    <!-- Supabase JS Client via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Custom script elements -->
+    <script src="db.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>

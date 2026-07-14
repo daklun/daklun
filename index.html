@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Angkringan Mas Eja - Nikmati kehangatan nongkrong dengan aneka kopi premium, teh poci khas Tegal, dan puluhan pilihan sate-satean bakar. Berlokasi di pusat kota Tegal.">
+    <title>Angkringan Mas Eja - Kopi & Lok-Lok Premium</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Header / Navigation -->
+    <header class="navbar-container">
+        <div class="navbar-wrapper container">
+            <a href="#" class="logo">
+                <span class="logo-accent"><i class="fa-solid fa-fire-burner"></i></span> Angkringan<span class="highlight">Mas Eja</span>
+            </a>
+            <nav class="nav-links">
+                <a href="#beranda" class="active">Beranda</a>
+                <a href="#tentang">Tentang Kami</a>
+                <a href="#menu">Menu</a>
+                <a href="#simulator">Piring Virtual</a>
+                <a href="#lokasi">Lokasi</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="#simulator" class="btn-primary btn-nav">Pesan Sekarang</a>
+                <button class="mobile-menu-toggle" id="mobile-toggle" aria-label="Toggle Menu">
+                    <i class="fa-solid fa-bars-staggered"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Nav Overlay -->
+    <div class="mobile-nav-overlay" id="mobile-nav">
+        <button class="mobile-menu-close" id="mobile-close"><i class="fa-solid fa-xmark"></i></button>
+        <div class="mobile-nav-links">
+            <a href="#beranda" class="mobile-link">Beranda</a>
+            <a href="#tentang" class="mobile-link">Tentang Kami</a>
+            <a href="#menu" class="mobile-link">Menu</a>
+            <a href="#simulator" class="mobile-link">Piring Virtual</a>
+            <a href="#lokasi" class="mobile-link">Lokasi</a>
+            <a href="#simulator" class="mobile-link btn-primary text-center">Pesan Sekarang</a>
+        </div>
+    </div>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="beranda" class="hero-section">
+            <div class="container hero-wrapper">
+                <div class="hero-content">
+                    <span class="hero-badge"><i class="fa-solid fa-location-dot"></i> Taman Poci, Alun-Alun Tegal</span>
+                    <h1>Cita Rasa Hangat <br>Nongkrong Malam Khas <span class="gradient-text">Tegal Kota</span></h1>
+                    <p>Rasakan hangatnya malam di Tegal dengan racikan kopi tubruk robusta, teh poci asli gula batu, serta kelezatan aneka nasi bakar dan sate-satean yang dibakar dengan bumbu oles racikan rahasia.</p>
+                    <div class="hero-buttons">
+                        <a href="#menu" class="btn-primary"><i class="fa-solid fa-utensils"></i> Lihat Menu</a>
+                        <a href="#simulator" class="btn-secondary"><i class="fa-solid fa-calculator"></i> Piring Virtual (<span id="hero-cart-count">0</span>)</a>
+                    </div>
+                    <div class="hero-features">
+                        <div class="hero-feature-item">
+                            <i class="fa-solid fa-mug-hot"></i>
+                            <span>Wedangan & Kopi</span>
+                        </div>
+                        <div class="hero-feature-item">
+                            <i class="fa-solid fa-fire"></i>
+                            <span>Sate Bakar Mandiri</span>
+                        </div>
+                        <div class="hero-feature-item">
+                            <i class="fa-solid fa-couch"></i>
+                            <span>Lesehan Santai</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="hero-visual">
+                    <div class="visual-card-wrapper">
+                        <div class="visual-glow"></div>
+                        <div class="hero-image-placeholder">🍢🍵</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Us Section -->
+        <section id="tentang" class="about-section">
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Tentang Kami</span>
+                    <h2>Nongkrong Santai, Harga Bersahabat</h2>
+                    <p class="section-desc">Angkringan Mas Eja menggabungkan konsep klasik wedangan pinggir jalan dengan penyajian menu higienis, porsi mantap, dan ruang kumpul lesehan yang luas.</p>
+                </div>
+                <div class="about-grid">
+                    <div class="about-card">
+                        <div class="about-icon-wrapper">
+                            <i class="fa-solid fa-mug-saucer"></i>
+                        </div>
+                        <h3>Wedangan Otentik</h3>
+                        <p>Robusta lokal Tegal diseduh pekat dan teh poci wangi melati disajikan di dalam teko tanah liat asli dengan gula batu manis legit.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-icon-wrapper">
+                            <i class="fa-solid fa-fire-burner"></i>
+                        </div>
+                        <h3>Sate Bumbu Oles</h3>
+                        <p>Mulai dari sate usus, kulit garing, telur puyuh, hingga olahan sosis & nugget yang dilumuri bumbu kecap pedas manis bakar khas.</p>
+                    </div>
+                    <div class="about-card">
+                        <div class="about-icon-wrapper">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <h3>Tempat Kumpul Asik</h3>
+                        <p>Terletak strategis di kawasan Taman Poci Alun-Alun Kota Tegal. Dilengkapi tikar lesehan outdoor sejuk untuk kongko malam.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="menu" class="menu-section">
+            <div class="container">
+                <div class="section-header">
+                    <div>
+                        <span class="section-tag">Daftar Menu</span>
+                        <h2>Pilih Menu Favoritmu</h2>
+                    </div>
+                    <div class="menu-filters" id="menu-filters">
+                        <button class="filter-btn active" data-filter="all">Semua</button>
+                        <button class="filter-btn" data-filter="utama">Nasi & Mie</button>
+                        <button class="filter-btn" data-filter="sate">Aneka Sate</button>
+                        <button class="filter-btn" data-filter="minuman">Wedang & Es</button>
+                    </div>
+                </div>
+
+                <div class="menu-grid" id="menu-container">
+                    <!-- Menu items will be injected by JavaScript -->
+                    <div class="text-center" style="grid-column: 1/-1; padding: 40px 0;">
+                        <i class="fa-solid fa-circle-notch fa-spin text-success" style="font-size: 2rem; margin-bottom: 8px;"></i>
+                        <p>Memuat menu angkringan...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Virtual Order / Simulator Section -->
+        <section id="simulator" class="simulator-section">
+            <div class="simulator-glow-left"></div>
+            <div class="simulator-glow-right"></div>
+            <div class="container">
+                <div class="section-header text-center">
+                    <span class="section-tag">Simulator Pesanan</span>
+                    <h2>Isi Piring Virtual Anda</h2>
+                    <p class="section-desc">Pilih menu di atas dengan klik tombol tambah (+), simulasikan piring sajian Anda secara visual, hitung totalnya, lalu kirimkan pesanan langsung via WhatsApp!</p>
+                </div>
+
+                <div class="simulator-layout">
+                    <!-- Plate Visualization Area -->
+                    <div class="plate-visual-area">
+                        <div class="plate-container">
+                            <div class="plate-shadow"></div>
+                            <div class="plate-rim">
+                                <div class="plate-base" id="plate-items-container">
+                                    <!-- Visual items will float here dynamically -->
+                                    <div class="plate-empty-message" id="plate-empty-message">
+                                        <i class="fa-solid fa-circle-notch fa-spin-slow"></i>
+                                        <p>Piring Anda masih kosong.<br>Klik tombol <strong>+</strong> pada daftar menu di atas untuk mengisi piring!</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="plate-legend">
+                            <span class="legend-item"><span class="legend-color color-utama"></span> Nasi & Mie</span>
+                            <span class="legend-item"><span class="legend-color color-sate"></span> Aneka Sate</span>
+                            <span class="legend-item"><span class="legend-color color-minuman"></span> Wedang & Es</span>
+                        </div>
+                    </div>
+
+                    <!-- Cart Details & WA Builder -->
+                    <div class="cart-calculator-panel">
+                        <div class="cart-header">
+                            <h3><i class="fa-solid fa-receipt"></i> Ringkasan Piring</h3>
+                            <button class="btn-clear-cart" id="clear-cart-btn"><i class="fa-solid fa-trash-can"></i> Bersihkan</button>
+                        </div>
+
+                        <div class="cart-items-list" id="cart-items-list">
+                            <!-- Selected items list -->
+                        </div>
+
+                        <!-- Sauce Selection for Sate-Satean -->
+                        <div class="sauce-selection-group" id="sauce-selection-container" style="display: none;">
+                            <label class="input-label"><i class="fa-solid fa-jar"></i> Cocolan Sate (Olesan Bakar):</label>
+                            <div class="sauce-options">
+                                <label class="sauce-card active">
+                                    <input type="radio" name="sauce" value="Kecap Pedas Manis" checked>
+                                    <span class="sauce-name">Kecap Pedas Manis</span>
+                                </label>
+                                <label class="sauce-card">
+                                    <input type="radio" name="sauce" value="Saus Madu BBQ">
+                                    <span class="sauce-name">Madu Barbeque</span>
+                                </label>
+                                <label class="sauce-card">
+                                    <input type="radio" name="sauce" value="Sambal Bawang Pedas Gila">
+                                    <span class="sauce-name">Sambal Bawang</span>
+                                </label>
+                                <label class="sauce-card">
+                                    <input type="radio" name="sauce" value="Original Asin Gurih">
+                                    <span class="sauce-name">Original Gurih</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="cart-totals">
+                            <div class="total-row">
+                                <span>Subtotal Belanja</span>
+                                <span id="cart-subtotal">Rp 0</span>
+                            </div>
+                            <div class="total-row highlight">
+                                <span>Estimasi Total</span>
+                                <span id="cart-total">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <div class="whatsapp-builder-box">
+                            <label class="input-label" for="customer-name"><i class="fa-solid fa-user"></i> Nama Anda:</label>
+                            <input type="text" id="customer-name" placeholder="Tulis nama panggilan..." class="form-input">
+
+                            <label class="input-label" for="order-note"><i class="fa-solid fa-comment-dots"></i> Catatan Khusus:</label>
+                            <input type="text" id="order-note" placeholder="Contoh: Es teh es batu sedikit, kopi manis..." class="form-input">
+
+                            <label class="input-label" for="payment-method"><i class="fa-solid fa-credit-card"></i> Metode Pembayaran:</label>
+                            <select id="payment-method" class="form-input" style="width: 100%; padding: 12px; margin-bottom: 12px;">
+                                <option value="Cash / Bayar di Tempat">Bayar di Tempat (Tunai di Kasir)</option>
+                                <option value="Transfer Bank BCA">Transfer Bank BCA</option>
+                                <option value="QRIS / E-Wallet">QRIS / E-Wallet (Dana/OVO/GoPay)</option>
+                            </select>
+
+                            <div id="payment-instructions-box" class="payment-info-box" style="display: none; margin-bottom: 15px;">
+                                <p id="payment-details-text" style="margin: 0; line-height: 1.4;"></p>
+                            </div>
+
+                            <div class="wa-preview-box">
+                                <div class="wa-preview-header">
+                                    <span><i class="fa-brands fa-whatsapp"></i> Preview Draft Pesanan</span>
+                                </div>
+                                <pre class="wa-preview-text" id="wa-preview-content">Piring virtual Anda masih kosong...</pre>
+                            </div>
+
+                            <button class="btn-primary btn-block btn-large btn-whatsapp" id="send-whatsapp-btn" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                <i class="fa-brands fa-whatsapp"></i> Kirim Pesanan ke Kasir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Location & Contact Section -->
+        <section id="lokasi" class="location-section">
+            <div class="container">
+                <div class="location-grid">
+                    <div class="location-info">
+                        <span class="section-tag">Lokasi & Kontak</span>
+                        <h2>Mampir Lesehan di Tegal</h2>
+                        <p>Kami buka setiap malam di kawasan kuliner Alun-Alun Kota Tegal. Nikmati malam santai sambil bersantai dengan suasana asri di bawah lampu kota.</p>
+                        
+                        <div class="info-list">
+                            <div class="info-item">
+                                <div class="info-icon"><i class="fa-solid fa-location-dot"></i></div>
+                                <div>
+                                    <h4>Alamat Kami</h4>
+                                    <p>Taman Poci, Alun-Alun Kota Tegal (Samping gerbang masuk utara), Jawa Tengah</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon"><i class="fa-solid fa-clock"></i></div>
+                                <div>
+                                    <h4>Jam Operasional</h4>
+                                    <p>Setiap Hari: 17.00 - 01.00 WIB (Persiapan dari 14.00 WIB)</p>
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-icon"><i class="fa-solid fa-phone"></i></div>
+                                <div>
+                                    <h4>WhatsApp Kasir</h4>
+                                    <p>+62 823-2954-7641</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="social-links">
+                            <a href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+                            <a href="#" aria-label="WhatsApp"><i class="fa-brands fa-whatsapp"></i></a>
+                            <a href="#" aria-label="TikTok"><i class="fa-brands fa-tiktok"></i></a>
+                        </div>
+                    </div>
+
+                    <div class="location-map-container">
+                        <div class="map-wrapper">
+                            <div class="map-inner">
+                                <div class="map-dot-pulse"></div>
+                                <div class="map-popup">
+                                    <h5>Angkringan Mas Eja</h5>
+                                    <p>Taman Poci Alun-Alun</p>
+                                </div>
+                                <div class="map-streets">
+                                    <div class="street road-1"></div>
+                                    <div class="street road-2"></div>
+                                    <div class="street road-3"></div>
+                                    <div class="street-label">Alun-Alun Tegal</div>
+                                    <div class="street-label label-pancasila">Jl. Pancasila</div>
+                                    <div class="street-label label-angkringan">KAMI DI SINI</div>
+                                </div>
+                            </div>
+                            <div class="map-overlay-actions">
+                                <a href="https://maps.google.com" target="_blank" class="btn-primary btn-sm"><i class="fa-solid fa-map-location-dot"></i> Google Maps</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer-container">
+        <div class="container footer-wrapper">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    <span class="logo-accent"><i class="fa-solid fa-fire-burner"></i></span> Angkringan<span class="highlight">Mas Eja</span>
+                </a>
+                <p>Nongkrong Malam Khas Tegal Kota dengan cita rasa wedangan pekat dan ragam nasi bakar/sate oles bakar lezat.</p>
+            </div>
+            <div class="footer-nav">
+                <h4>Navigasi</h4>
+                <a href="#beranda">Beranda</a>
+                <a href="#tentang">Tentang Kami</a>
+                <a href="#menu">Daftar Menu</a>
+                <a href="#simulator">Piring Virtual</a>
+                <a href="admin.html"><i class="fa-solid fa-lock" style="font-size: 0.75rem; margin-right: 4px;"></i> Panel Kasir / Admin</a>
+            </div>
+            <div class="footer-contact">
+                <h4>Hubungi Kami</h4>
+                <p><i class="fa-solid fa-envelope"></i> admin@angkringanmaseja.com</p>
+                <p><i class="fa-solid fa-phone"></i> +62 823-2954-7641</p>
+                <p><i class="fa-solid fa-house"></i> Alun-Alun Tegal, Jawa Tengah</p>
+            </div>
+        </div>
+        <div class="footer-bottom text-center">
+            <p>&copy; 2026 Angkringan Mas Eja. Rancang Bangun Computational Thinking.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase JS Client via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Custom JS -->
+    <script src="db.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
