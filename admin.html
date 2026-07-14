@@ -523,6 +523,54 @@
         </div>
     </div>
 
+    <!-- Partial Payment / Bon Confirmation Modal -->
+    <div class="modal-overlay" id="partial-pay-modal" style="display: none;">
+        <div class="passcode-modal" style="max-width: 450px; text-align: left;">
+            <h3 style="text-align: center; margin-bottom: 12px;"><i class="fa-solid fa-triangle-exclamation text-gold"></i> Pembayaran Kurang!</h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px; line-height: 1.4;">
+                Uang yang dibayarkan kurang dari total belanja. Apakah Anda ingin memasukkan kekurangan pembayaran ke dalam catatan BON pelanggan?
+            </p>
+            
+            <div class="total-row" style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: var(--border-radius-md); border: 1px solid var(--border-color); margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-secondary);">
+                    <span>Total Belanja:</span>
+                    <span id="partial-total-label">Rp 0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem; color: var(--text-secondary); margin-top: 6px;">
+                    <span>Tunai Dibayar:</span>
+                    <span id="partial-paid-label">Rp 0</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: bold; color: var(--accent-red); margin-top: 10px; border-top: 1px dashed var(--border-color); padding-top: 8px;">
+                    <span>Kekurangan (BON):</span>
+                    <span id="partial-debt-label">Rp 0</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="partial-bon-select">Pilih Pelanggan Setia:</label>
+                <select id="partial-bon-select" class="form-control">
+                    <option value="">-- Pilih Pelanggan --</option>
+                </select>
+            </div>
+            
+            <div style="text-align: center; color: var(--text-muted); font-size: 0.75rem; margin: -10px 0 10px 0;">atau pelanggan baru:</div>
+            
+            <div class="form-group">
+                <label for="partial-bon-name">Nama Pelanggan Baru:</label>
+                <input type="text" id="partial-bon-name" class="form-control" placeholder="Nama Pelanggan...">
+            </div>
+            <div class="form-group">
+                <label for="partial-bon-whatsapp">WhatsApp Pelanggan Baru:</label>
+                <input type="text" id="partial-bon-whatsapp" class="form-control" placeholder="Contoh: 081234567890">
+            </div>
+
+            <div class="modal-actions" style="margin-top: 24px;">
+                <button type="button" class="btn-secondary" id="btn-partial-cancel">Batalkan Transaksi</button>
+                <button type="button" class="btn-primary" id="btn-partial-confirm"><i class="fa-solid fa-circle-check"></i> Proses Sebagai Bon</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Edit/Add Menu Item Modal -->
     <div class="modal-overlay" id="item-modal" style="display: none;">
         <div class="form-modal">
@@ -649,6 +697,7 @@
             <button class="tab-btn" data-tab="kasir"><i class="fa-solid fa-cash-register"></i> Kasir POS</button>
             <button class="tab-btn" data-tab="stok"><i class="fa-solid fa-warehouse"></i> Inventori & Basi</button>
             <button class="tab-btn" data-tab="bon"><i class="fa-solid fa-book"></i> Catatan Bon</button>
+            <button class="tab-btn" data-tab="pelanggan"><i class="fa-solid fa-users"></i> Pelanggan</button>
             <button class="tab-btn" data-tab="laporan"><i class="fa-solid fa-wallet"></i> Laba Rugi</button>
             <button class="tab-btn" data-tab="db"><i class="fa-solid fa-database"></i> Database</button>
         </div>
@@ -812,11 +861,19 @@
                         <!-- Bon Debt Input Split -->
                         <div id="pos-bon-input-group" style="display: none;">
                             <div class="form-group">
-                                <label for="pos-bon-name">Nama Pelanggan Bon:</label>
+                                <label for="pos-bon-select">Pilih Pelanggan Setia:</label>
+                                <select id="pos-bon-select" class="form-control">
+                                    <option value="">-- Pilih Pelanggan --</option>
+                                    <!-- Options injected dynamically -->
+                                </select>
+                            </div>
+                            <div style="text-align: center; color: var(--text-muted); font-size: 0.8rem; margin: -10px 0 10px 0;">atau pelanggan baru:</div>
+                            <div class="form-group">
+                                <label for="pos-bon-name">Nama Pelanggan Baru:</label>
                                 <input type="text" id="pos-bon-name" class="form-control" placeholder="Nama Pelanggan...">
                             </div>
                             <div class="form-group">
-                                <label for="pos-bon-whatsapp">WhatsApp Pelanggan:</label>
+                                <label for="pos-bon-whatsapp">WhatsApp Pelanggan Baru:</label>
                                 <input type="text" id="pos-bon-whatsapp" class="form-control" placeholder="Contoh: 081234567890">
                             </div>
                         </div>
@@ -832,10 +889,37 @@
         <!-- ---------------------------------------------------- -->
         <div class="tab-content" id="content-stok">
             <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 32px; align-items: start;">
-                <!-- Left: CRUD Menu Items -->
+                <!-- Left: Monitoring & Master Menu -->
                 <div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                        <h3>Daftar Inventori Sistem</h3>
+                        <h3><i class="fa-solid fa-clock-rotate-left text-success"></i> Monitoring Stok Menu Harian</h3>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-secondary btn-sm" onclick="startNewShift()" style="border-color: var(--success); color: var(--success);"><i class="fa-solid fa-arrows-rotate"></i> Mulai Shift Baru</button>
+                            <button class="btn-secondary btn-sm" onclick="printDailyStockReport()"><i class="fa-solid fa-print"></i> Cetak Rekap Basi</button>
+                        </div>
+                    </div>
+                    <div class="table-container" style="margin-bottom: 32px;">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Kode</th>
+                                    <th>Nama Menu</th>
+                                    <th class="text-center">Stok Awal</th>
+                                    <th class="text-center">Terjual</th>
+                                    <th class="text-center">Sisa</th>
+                                    <th class="text-center">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stok-monitoring-rows">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted" style="padding: 24px 0;">Memuat data monitoring...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3><i class="fa-solid fa-boxes-stacked text-orange"></i> Kelola Master Data Menu</h3>
                         <button class="btn-primary btn-sm" id="btn-add-menu-item-modal"><i class="fa-solid fa-plus"></i> Tambah Menu Baru</button>
                     </div>
                     <div class="table-container">
@@ -846,13 +930,13 @@
                                     <th>Kategori</th>
                                     <th>Harga Jual</th>
                                     <th>Harga Modal</th>
-                                    <th class="text-center">Stok</th>
+                                    <th class="text-center">Stok Master</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody id="crud-menu-rows">
                                 <tr>
-                                    <td colspan="6" class="text-center text-muted" style="padding: 24px 0;">Memuat data...</td>
+                                    <td colspan="6" class="text-center text-muted" style="padding: 24px 0;">Memuat data master...</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -1028,6 +1112,59 @@
         </div>
 
         <!-- ---------------------------------------------------- -->
+        <!-- TAB 5.5: DATABASE PELANGGAN (CUSTOMER LOYALTY) -->
+        <!-- ---------------------------------------------------- -->
+        <div class="tab-content" id="content-pelanggan">
+            <div style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: 32px; align-items: start;">
+                <!-- Left: Form Tambah/Edit Pelanggan -->
+                <div class="config-card">
+                    <h3 id="pelanggan-form-title"><i class="fa-solid fa-user-plus text-orange"></i> Tambah Pelanggan Baru</h3>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 8px 0 20px 0;">Catat data pelanggan setia untuk program loyalitas, diskon, dan pelacakan bon.</p>
+                    
+                    <form id="pelanggan-form">
+                        <input type="hidden" id="pelanggan-id">
+                        <div class="form-group">
+                            <label for="pelanggan-nama">Nama Pelanggan:</label>
+                            <input type="text" id="pelanggan-nama" class="form-control" placeholder="Contoh: Budi Sudarsono" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="pelanggan-wa">Nomor WhatsApp:</label>
+                            <input type="text" id="pelanggan-wa" class="form-control" placeholder="Contoh: 082329547641" required>
+                        </div>
+                        <div class="modal-actions" style="justify-content: flex-start; margin-top: 10px;">
+                            <button type="submit" class="btn-primary" id="btn-save-pelanggan">Simpan Pelanggan</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel-pelanggan" style="display:none;">Batal</button>
+                        </div>
+                    </form>
+                </div>
+                
+                <!-- Right: Tabel Pelanggan -->
+                <div>
+                    <h3 style="margin-bottom: 16px;"><i class="fa-solid fa-users"></i> Daftar Pelanggan Setia</h3>
+                    <div class="table-container">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Pelanggan</th>
+                                    <th>WhatsApp</th>
+                                    <th class="text-center">Kunjungan</th>
+                                    <th>Total Belanja</th>
+                                    <th>Saldo Bon</th>
+                                    <th class="text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pelanggan-rows">
+                                <tr>
+                                    <td colspan="6" class="text-center text-muted" style="padding: 24px 0;">Memuat data pelanggan...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ---------------------------------------------------- -->
         <!-- TAB 6: DATABASE SETTINGS -->
         <!-- ---------------------------------------------------- -->
         <div class="tab-content" id="content-db">
@@ -1059,15 +1196,18 @@
                 <h3>📜 SQL Schema Proyek Supabase</h3>
                 <p style="color: var(--text-secondary); font-size: 0.9rem; margin-top: 8px;">Buka dashboard Supabase Anda, masuk ke **SQL Editor**, buat query baru, lalu jalankan query SQL berikut untuk membuat struktur database relasional Angkringan Mas Eja:</p>
                 
-                <div class="sql-box" id="sql-schema-code">-- Query SQL Relasional Angkringan Mas Eja
+                <div class="sql-box" id="sql-schema-code">-- Query SQL Relasional Angkringan Mas Eja (v2.0)
 create table menu_items (
   id bigint primary key generated always as identity,
+  code text,
   name text not null,
   category text not null,
   price numeric not null,
   harga_modal numeric not null default 0,
   stok_sistem integer not null default 0,
   stok_minimum integer not null default 5,
+  stok_awal integer not null default 0,
+  terjual integer not null default 0,
   emoji text,
   description text,
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
@@ -1111,19 +1251,30 @@ create table food_waste (
   created_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
+create table pelanggan (
+  id bigint primary key generated always as identity,
+  nama text not null,
+  no_whatsapp text,
+  total_transaksi integer not null default 0,
+  total_belanja numeric not null default 0,
+  saldo_bon numeric not null default 0,
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+);
+
 -- Kebijakan RLS Akses Publik (Buka untuk Anon Key)
 alter table menu_items enable row level security;
 alter table transactions enable row level security;
 alter table bon_hutang enable row level security;
 alter table expenses enable row level security;
 alter table food_waste enable row level security;
+alter table pelanggan enable row level security;
 
-create policy "menu_select" on menu_items for select using (true);
 create policy "menu_all" on menu_items for all using (true);
 create policy "trans_all" on transactions for all using (true);
 create policy "bon_all" on bon_hutang for all using (true);
 create policy "exp_all" on expenses for all using (true);
-create policy "waste_all" on food_waste for all using (true);</div>
+create policy "waste_all" on food_waste for all using (true);
+create policy "pelanggan_all" on pelanggan for all using (true);</div>
                 <button class="btn-copy" id="btn-copy-sql">Salin SQL Schema</button>
             </div>
         </div>

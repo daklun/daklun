@@ -1506,3 +1506,40 @@ section {
     font-size: 0.75rem;
     margin-top: 12px;
 }
+
+/* Status level variables and color badges */
+.menu-stock-badge.status-aman,
+.category-pill.status-aman {
+    color: var(--success) !important;
+    border-color: rgba(46, 196, 182, 0.3) !important;
+    background: rgba(46, 196, 182, 0.08) !important;
+}
+
+.menu-stock-badge.status-peringatan,
+.category-pill.status-peringatan {
+    color: var(--gold) !important;
+    border-color: rgba(255, 190, 11, 0.3) !important;
+    background: rgba(255, 190, 11, 0.08) !important;
+}
+
+.menu-stock-badge.status-kritis,
+.category-pill.status-kritis {
+    color: var(--accent-red) !important;
+    border-color: rgba(239, 35, 60, 0.3) !important;
+    background: rgba(239, 35, 60, 0.08) !important;
+}
+
+.menu-stock-badge.status-habis,
+.category-pill.status-habis {
+    color: var(--text-muted) !important;
+    border-color: var(--border-color) !important;
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Readonly fields styling in forms */
+input[readonly].form-control {
+    background-color: rgba(255, 255, 255, 0.01) !important;
+    border-style: dashed;
+    color: var(--text-secondary);
+    cursor: not-allowed;
+}

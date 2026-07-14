@@ -113,6 +113,18 @@ function setupEventListeners() {
     window.addEventListener("scroll", handleScrollHighlight);
 }
 
+function getStockStatus(item) {
+    if (item.stok_sistem <= 0) {
+        return { text: "Habis", class: "status-habis", color: "var(--accent-red)" };
+    } else if (item.stok_sistem <= item.stok_minimum) {
+        return { text: `Kritis (${item.stok_sistem})`, class: "status-kritis", color: "var(--accent-red)" };
+    } else if (item.stok_sistem <= item.stok_minimum * 2) {
+        return { text: `Terbatas (${item.stok_sistem})`, class: "status-peringatan", color: "var(--gold)" };
+    } else {
+        return { text: `Tersedia (${item.stok_sistem})`, class: "status-aman", color: "var(--success)" };
+    }
+}
+
 function renderMenu(categoryFilter) {
     if (!menuContainer) return;
     menuContainer.innerHTML = "";
@@ -143,18 +155,22 @@ function renderMenu(categoryFilter) {
             ? item.image 
             : (item.image ? `assets/${item.image}` : '');
 
+        const status = getStockStatus(item);
+
         card.innerHTML = `
             <div class="menu-img-container">
                 <span class="menu-badge">${categoryName}</span>
+                <span class="menu-stock-badge ${status.class}" style="position: absolute; top: 16px; right: 16px; font-size: 0.7rem; font-weight: 800; background: rgba(0,0,0,0.65); padding: 4px 10px; border-radius: 50px; border: 1px solid ${status.color}; color: ${status.color};">${status.text}</span>
                 ${imgUrl ? `<img src="${imgUrl}" alt="${item.name}" class="menu-card-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';">` : ''}
                 <span class="menu-icon-graphic" style="${imgUrl ? 'display: none;' : ''}">${item.emoji}</span>
             </div>
             <div class="menu-info">
-                <h3>${item.name}</h3>
+                <div style="font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 2px;">${item.code || ""}</div>
+                <h3 style="margin-top: 0;">${item.name}</h3>
                 <p>${item.description}</p>
                 <div class="menu-footer">
                     <span class="menu-price">${formatRupiah(item.price)}</span>
-                    <button class="btn-add-item" onclick="addToCart(${item.id})" aria-label="Tambah ${item.name}">
+                    <button class="btn-add-item" onclick="addToCart(${item.id})" aria-label="Tambah ${item.name}" ${item.stok_sistem <= 0 ? 'disabled style="opacity:0.3; cursor:not-allowed;"' : ''}>
                         <i class="fa-solid fa-plus"></i>
                     </button>
                 </div>
@@ -378,7 +394,7 @@ function buildWhatsAppMessage() {
 
         if (item.category === "sate") hasSate = true;
 
-        text += `• *${qty}x* ${item.name} (${formatRupiah(item.price)})\n`;
+        text += `• *${qty}x* [${item.code || ""}] ${item.name} (${formatRupiah(item.price)})\n`;
     });
 
     if (hasSate) {

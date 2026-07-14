@@ -10,6 +10,7 @@ let TRANSACTIONS = [];
 let BONS = [];
 let EXPENSES = [];
 let WASTES = [];
+let PELANGGAN = [];
 
 // POS State
 let posCart = {}; // maps item.id -> qty
@@ -21,6 +22,14 @@ const authError = document.getElementById("auth-error");
 const btnLoginSubmit = document.getElementById("btn-login-submit");
 const btnLogout = document.getElementById("btn-logout");
 const connectionStatus = document.getElementById("connection-status");
+
+const posBonSelect = document.getElementById("pos-bon-select");
+const partialPayModal = document.getElementById("partial-pay-modal");
+const btnPartialCancel = document.getElementById("btn-partial-cancel");
+const btnPartialConfirm = document.getElementById("btn-partial-confirm");
+const partialBonSelect = document.getElementById("partial-bon-select");
+const partialBonName = document.getElementById("partial-bon-name");
+const partialBonWhatsapp = document.getElementById("partial-bon-whatsapp");
 
 // Tab switching
 const tabButtons = document.querySelectorAll(".tab-btn");
@@ -54,6 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         setupPOSTab();
         setupStokTab();
         setupBonTab();
+        setupPelangganTab();
         setupLaporanTab();
         updateDBBadge();
     }
@@ -102,6 +112,7 @@ async function loadAllData() {
         BONS = await db.getBons();
         EXPENSES = await db.getExpenses();
         WASTES = await db.getFoodWaste();
+        PELANGGAN = await db.getPelanggan();
     } catch (err) {
         console.error("Error loading operational databases:", err);
     }
@@ -136,6 +147,7 @@ function setupTabSwitching() {
             if (targetTab === "kasir") renderPOSMenu();
             if (targetTab === "stok") renderStokTables();
             if (targetTab === "bon") renderBonTable();
+            if (targetTab === "pelanggan") renderPelangganTable();
             if (targetTab === "laporan") renderLaporanPembukuan();
         });
     });
@@ -367,6 +379,76 @@ function setupPOSTab() {
     if (btnCompleteCheckout) {
         btnCompleteCheckout.addEventListener("click", processPOSCheckout);
     }
+
+    // New customer selection hooks for POS cashier
+    if (posBonSelect) {
+        posBonSelect.addEventListener("change", () => {
+            const selectedId = parseInt(posBonSelect.value);
+            const p = PELANGGAN.find(cust => cust.id === selectedId);
+            if (p) {
+                posBonName.value = p.nama;
+                posBonName.readOnly = true;
+                posBonWhatsapp.value = p.no_whatsapp;
+                posBonWhatsapp.readOnly = true;
+            } else {
+                posBonName.value = "";
+                posBonName.readOnly = false;
+                posBonWhatsapp.value = "";
+                posBonWhatsapp.readOnly = false;
+            }
+        });
+    }
+
+    if (partialBonSelect) {
+        partialBonSelect.addEventListener("change", () => {
+            const selectedId = parseInt(partialBonSelect.value);
+            const p = PELANGGAN.find(cust => cust.id === selectedId);
+            if (p) {
+                partialBonName.value = p.nama;
+                partialBonName.readOnly = true;
+                partialBonWhatsapp.value = p.no_whatsapp;
+                partialBonWhatsapp.readOnly = true;
+            } else {
+                partialBonName.value = "";
+                partialBonName.readOnly = false;
+                partialBonWhatsapp.value = "";
+                partialBonWhatsapp.readOnly = false;
+            }
+        });
+    }
+
+    if (btnPartialCancel) {
+        btnPartialCancel.addEventListener("click", () => {
+            partialPayModal.style.display = "none";
+            window.pendingCheckout = null;
+        });
+    }
+
+    if (btnPartialConfirm) {
+        btnPartialConfirm.addEventListener("click", async () => {
+            if (!window.pendingCheckout) return;
+            
+            const custId = partialBonSelect.value;
+            const name = partialBonName.value.trim();
+            const wa = partialBonWhatsapp.value.trim();
+            
+            if (name === "") {
+                alert("Nama pelanggan bon wajib diisi!");
+                return;
+            }
+            
+            const { keys, subtotal, method, paid } = window.pendingCheckout;
+            const debt = subtotal - paid;
+            
+            partialPayModal.style.display = "none";
+            window.pendingCheckout = null;
+            
+            await executePOSCheckoutCompletion(keys, subtotal, method, paid, 0, true, debt, name, wa, custId);
+            showToast("Transaksi berhasil diproses sebagian tunai & sisa bon!", "success");
+        });
+    }
+
+    populateCustomerDropdowns();
 }
 
 function renderPOSMenu() {
@@ -530,98 +612,48 @@ async function processPOSCheckout() {
     let paid = 0;
     let change = 0;
     
-    let bonCustName = "";
-    let bonCustWA = "";
+    let customerName = "";
+    let customerWA = "";
+    let customerId = "";
 
     if (method === "Tunai") {
         paid = Number(posAmountPaid.value) || 0;
         if (paid < subtotal) {
-            alert("Pembayaran tunai kurang!");
+            // Trigger partial payment / bon conversion flow
+            window.pendingCheckout = { keys, subtotal, method, paid };
+            
+            document.getElementById("partial-total-label").textContent = formatRupiah(subtotal);
+            document.getElementById("partial-paid-label").textContent = formatRupiah(paid);
+            document.getElementById("partial-debt-label").textContent = formatRupiah(subtotal - paid);
+            
+            if (partialBonName) {
+                partialBonName.value = "";
+                partialBonName.readOnly = false;
+            }
+            if (partialBonWhatsapp) {
+                partialBonWhatsapp.value = "";
+                partialBonWhatsapp.readOnly = false;
+            }
+            if (partialBonSelect) {
+                partialBonSelect.value = "";
+            }
+            
+            populateCustomerDropdowns();
+            partialPayModal.style.display = "flex";
             return;
         }
         change = paid - subtotal;
     } else if (method === "Bon Hutang") {
-        bonCustName = posBonName.value.trim();
-        bonCustWA = posBonWhatsapp.value.trim();
-        if (bonCustName === "") {
+        customerId = posBonSelect.value;
+        customerName = posBonName.value.trim();
+        customerWA = posBonWhatsapp.value.trim();
+        if (customerName === "") {
             alert("Nama pelanggan bon wajib diisi!");
             return;
         }
     }
 
-    // 1. Deduct Stock and Compile Items List
-    const soldItems = [];
-    const stockUpdates = [];
-    
-    for (const idStr of keys) {
-        const id = parseInt(idStr);
-        const item = MENU_ITEMS.find(m => m.id === id);
-        const qty = posCart[idStr];
-        
-        soldItems.push({
-            id: item.id,
-            name: item.name,
-            price: item.price,
-            harga_modal: item.harga_modal,
-            qty: qty,
-            emoji: item.emoji
-        });
-
-        stockUpdates.push({
-            id: item.id,
-            newStock: item.stok_sistem - qty
-        });
-    }
-
-    // Process Stock deductions
-    await db.updateMenuStocks(stockUpdates);
-
-    // 2. Save Transaction
-    const today = getTodayDateString();
-    const time = new Date().toTimeString().split(' ')[0];
-    
-    const transaction = {
-        tanggal: today,
-        jam: time,
-        items: JSON.stringify(soldItems),
-        total_harga: subtotal,
-        pembayaran: method
-    };
-
-    const transRes = await db.saveTransaction(transaction);
-
-    // 3. Save Bon if selected
-    if (method === "Bon Hutang") {
-        const bon = {
-            nama_pelanggan: bonCustName,
-            no_whatsapp: bonCustWA,
-            tanggal_bon: today,
-            jumlah_hutang: subtotal,
-            sisa_hutang: subtotal,
-            status_lunas: false
-        };
-        await db.saveBon(bon);
-    }
-
-    // Reload all Data Cache
-    await loadAllData();
-
-    // 4. Print / Display receipt
-    let latestTransId = 1;
-    if (TRANSACTIONS.length > 0) {
-        latestTransId = Math.max(...TRANSACTIONS.map(t => t.id || 0));
-    }
-    
-    showReceiptModal(latestTransId, paid, change);
-
-    // Reset Form
-    posCart = {};
-    if (posBonName) posBonName.value = "";
-    if (posBonWhatsapp) posBonWhatsapp.value = "";
-    if (posAmountPaid) posAmountPaid.value = "";
-    updatePOSCartUI();
-    renderPOSMenu();
-    renderDashboardStats();
+    await executePOSCheckoutCompletion(keys, subtotal, method, paid, change, false, 0, customerName, customerWA, customerId);
 }
 
 // ----------------------------------------------------
@@ -755,6 +787,7 @@ function setupStokTab() {
 }
 
 function renderStokTables() {
+    renderStokMonitoring();
     renderMenuCRUD();
     renderBasiLog();
 }
@@ -908,6 +941,8 @@ async function saveMenuItemForm(e) {
     e.preventDefault();
     const idVal = document.getElementById("item-id").value;
     
+    const existing = idVal !== "" ? MENU_ITEMS.find(m => m.id === parseInt(idVal)) : null;
+
     const item = {
         name: document.getElementById("item-name").value,
         category: document.getElementById("item-category").value,
@@ -917,7 +952,11 @@ async function saveMenuItemForm(e) {
         harga_modal: Number(document.getElementById("item-modal-price").value),
         stok_sistem: Number(document.getElementById("item-stock").value),
         stok_minimum: Number(document.getElementById("item-min-stock").value),
-        description: document.getElementById("item-desc").value
+        description: document.getElementById("item-desc").value,
+        // Preserve v2.0 relational fields
+        code: existing ? existing.code : null,
+        stok_awal: existing ? (existing.stok_awal !== undefined ? existing.stok_awal : Number(document.getElementById("item-stock").value)) : Number(document.getElementById("item-stock").value),
+        terjual: existing ? (existing.terjual || 0) : 0
     };
 
     if (idVal !== "") item.id = parseInt(idVal);
@@ -930,12 +969,12 @@ async function saveMenuItemForm(e) {
             renderStokTables();
             renderDashboardStats();
             if (res.savedToCloud === false) {
-                alert("⚠️ Menu tersimpan di LOKAL saja (foto gagal masuk Supabase Cloud). Pastikan koneksi internet bagus.");
+                showToast("Menu disimpan lokal saja (Offline Mode)", "warning");
             } else {
-                alert("✅ Menu berhasil disimpan ke Supabase Cloud!");
+                showToast("Menu berhasil disimpan!", "success");
             }
         } else {
-            alert("❌ Gagal menyimpan menu!");
+            alert("❌ Gagal menyimpan menu!\n\nDetail: " + res.error);
         }
     } catch (error) {
         console.error(error);
@@ -1127,6 +1166,13 @@ window.markBonAsPaid = async function(id) {
     if (!bon) return;
 
     if (confirm(`Apakah Anda yakin menandai bon atas nama ${bon.nama_pelanggan} sebesar ${formatRupiah(bon.sisa_hutang)} telah LUNAS?`)) {
+        // Find customer and update their outstanding bon balance
+        const cust = PELANGGAN.find(p => p.nama.toLowerCase() === bon.nama_pelanggan.toLowerCase() || p.no_whatsapp === bon.no_whatsapp);
+        if (cust) {
+            cust.saldo_bon = Math.max(0, (cust.saldo_bon || 0) - bon.jumlah_hutang);
+            await db.savePelanggan(cust);
+        }
+
         bon.sisa_hutang = 0;
         bon.status_lunas = true;
         
@@ -1451,3 +1497,358 @@ function setupConfigForms() {
         });
     }
 }
+
+// ----------------------------------------------------
+// LOYALTY & COMPLEMENTARY FUNCTIONS APPENDED FOR v2.0
+// ----------------------------------------------------
+
+async function executePOSCheckoutCompletion(cartKeys, subtotal, paymentMethod, paid, change, isPartial, debtAmount, customerName, customerWA, customerId) {
+    // 1. Deduct Stock and update shift sales counts
+    const soldItems = [];
+    const stockUpdates = [];
+    
+    for (const idStr of cartKeys) {
+        const id = parseInt(idStr);
+        const item = MENU_ITEMS.find(m => m.id === id);
+        const qty = posCart[idStr];
+        
+        soldItems.push({
+            id: item.id,
+            code: item.code || "",
+            name: item.name,
+            price: item.price,
+            harga_modal: item.harga_modal,
+            qty: qty,
+            emoji: item.emoji
+        });
+
+        // Update item parameters
+        item.stok_sistem = item.stok_sistem - qty;
+        item.terjual = (item.terjual || 0) + qty;
+        
+        // Save back to db
+        await db.saveMenuItem(item);
+    }
+
+    // 2. Save Customer data / update loyalty stats
+    let targetCustId = customerId;
+    if (customerName) {
+        let cust = null;
+        if (customerId) {
+            cust = PELANGGAN.find(p => p.id === parseInt(customerId));
+        }
+        if (!cust) {
+            // Find by name/WA just in case
+            cust = PELANGGAN.find(p => p.nama.toLowerCase() === customerName.toLowerCase() || p.no_whatsapp === customerWA);
+        }
+        
+        if (cust) {
+            cust.total_transaksi = (cust.total_transaksi || 0) + 1;
+            cust.total_belanja = (cust.total_belanja || 0) + subtotal;
+            if (isPartial || paymentMethod === "Bon Hutang") {
+                cust.saldo_bon = (cust.saldo_bon || 0) + (isPartial ? debtAmount : subtotal);
+            }
+            await db.savePelanggan(cust);
+            targetCustId = cust.id;
+        } else {
+            // Create new customer
+            const newCust = {
+                nama: customerName,
+                no_whatsapp: customerWA,
+                total_transaksi: 1,
+                total_belanja: subtotal,
+                saldo_bon: (isPartial ? debtAmount : (paymentMethod === "Bon Hutang" ? subtotal : 0))
+            };
+            const saveRes = await db.savePelanggan(newCust);
+            if (saveRes.success && saveRes.pelanggan) {
+                targetCustId = saveRes.pelanggan.id;
+            }
+        }
+    }
+
+    // 3. Save Transaction
+    const today = getTodayDateString();
+    const time = new Date().toTimeString().split(' ')[0];
+    
+    const transaction = {
+        tanggal: today,
+        jam: time,
+        items: JSON.stringify(soldItems),
+        total_harga: subtotal,
+        pembayaran: isPartial ? `${paymentMethod} & Bon` : paymentMethod
+    };
+
+    await db.saveTransaction(transaction);
+
+    // 4. Save Bon if needed
+    if (isPartial || paymentMethod === "Bon Hutang") {
+        const bonAmt = isPartial ? debtAmount : subtotal;
+        const bon = {
+            nama_pelanggan: customerName || "Pelanggan Umum",
+            no_whatsapp: customerWA || "",
+            tanggal_bon: today,
+            jumlah_hutang: bonAmt,
+            sisa_hutang: bonAmt,
+            status_lunas: false
+        };
+        await db.saveBon(bon);
+    }
+
+    // Reload all Data Cache
+    await loadAllData();
+
+    // 5. Print / Display receipt
+    let latestTransId = 1;
+    if (TRANSACTIONS.length > 0) {
+        latestTransId = Math.max(...TRANSACTIONS.map(t => t.id || 0));
+    }
+    
+    showReceiptModal(latestTransId, paid, change);
+
+    // Reset Form
+    posCart = {};
+    if (posBonName) posBonName.value = "";
+    if (posBonWhatsapp) posBonWhatsapp.value = "";
+    if (posAmountPaid) posAmountPaid.value = "";
+    if (posBonSelect) posBonSelect.value = "";
+    
+    updatePOSCartUI();
+    renderPOSMenu();
+    renderDashboardStats();
+    renderStokTables();
+    renderPelangganTable();
+    populateCustomerDropdowns();
+}
+
+function populateCustomerDropdowns() {
+    if (posBonSelect) {
+        posBonSelect.innerHTML = `<option value="">-- Pilih Pelanggan --</option>`;
+        PELANGGAN.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = `${p.nama} (Bon: ${formatRupiah(p.saldo_bon)})`;
+            posBonSelect.appendChild(opt);
+        });
+    }
+    if (partialBonSelect) {
+        partialBonSelect.innerHTML = `<option value="">-- Pilih Pelanggan --</option>`;
+        PELANGGAN.forEach(p => {
+            const opt = document.createElement("option");
+            opt.value = p.id;
+            opt.textContent = `${p.nama} (Bon: ${formatRupiah(p.saldo_bon)})`;
+            partialBonSelect.appendChild(opt);
+        });
+    }
+}
+
+function renderStokMonitoring() {
+    const monitoringRows = document.getElementById("stok-monitoring-rows");
+    if (!monitoringRows) return;
+    monitoringRows.innerHTML = "";
+
+    MENU_ITEMS.forEach(item => {
+        const tr = document.createElement("tr");
+        
+        let statusText = "AMAN";
+        let statusColor = "var(--success)";
+        let statusClass = "utama";
+
+        if (item.stok_sistem <= 0) {
+            statusText = "HABIS";
+            statusColor = "var(--accent-red)";
+            statusClass = "sate";
+        } else if (item.stok_sistem <= item.stok_minimum) {
+            statusText = "KRITIS!";
+            statusColor = "var(--accent-red)";
+            statusClass = "sate";
+        } else if (item.stok_sistem <= item.stok_minimum * 2) {
+            statusText = "PERINGATAN";
+            statusColor = "var(--gold)";
+            statusClass = "minuman";
+        }
+
+        tr.innerHTML = `
+            <td class="td-name" style="color: var(--accent);">${item.code || ""}</td>
+            <td class="td-name">${item.emoji} ${item.name}</td>
+            <td class="text-center">${item.stok_awal}</td>
+            <td class="text-center">${item.terjual}</td>
+            <td class="text-center" style="font-weight: 700; color: #fff;">${item.stok_sistem}</td>
+            <td class="text-center"><span class="category-pill ${statusClass}" style="color: ${statusColor}; border-color: ${statusColor};">${statusText}</span></td>
+        `;
+        monitoringRows.appendChild(tr);
+    });
+}
+
+function setupPelangganTab() {
+    const form = document.getElementById("pelanggan-form");
+    if (form) {
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const idVal = document.getElementById("pelanggan-id").value;
+            const pelanggan = {
+                nama: document.getElementById("pelanggan-nama").value.trim(),
+                no_whatsapp: document.getElementById("pelanggan-wa").value.trim()
+            };
+            if (idVal !== "") {
+                pelanggan.id = parseInt(idVal);
+                // retain stats
+                const existing = PELANGGAN.find(p => p.id === pelanggan.id);
+                if (existing) {
+                    pelanggan.total_transaksi = existing.total_transaksi;
+                    pelanggan.total_belanja = existing.total_belanja;
+                    pelanggan.saldo_bon = existing.saldo_bon;
+                }
+            } else {
+                pelanggan.total_transaksi = 0;
+                pelanggan.total_belanja = 0;
+                pelanggan.saldo_bon = 0;
+            }
+
+            const res = await db.savePelanggan(pelanggan);
+            if (res.success) {
+                form.reset();
+                document.getElementById("pelanggan-id").value = "";
+                document.getElementById("btn-cancel-pelanggan").style.display = "none";
+                document.getElementById("pelanggan-form-title").innerHTML = `<i class="fa-solid fa-user-plus text-orange"></i> Tambah Pelanggan Baru`;
+                await loadAllData();
+                renderPelangganTable();
+                populateCustomerDropdowns();
+                showToast("Data pelanggan berhasil disimpan!", "success");
+            } else {
+                alert("Gagal menyimpan pelanggan!");
+            }
+        });
+    }
+
+    const cancelBtn = document.getElementById("btn-cancel-pelanggan");
+    if (cancelBtn) {
+        cancelBtn.addEventListener("click", () => {
+            if (form) form.reset();
+            document.getElementById("pelanggan-id").value = "";
+            cancelBtn.style.display = "none";
+            document.getElementById("pelanggan-form-title").innerHTML = `<i class="fa-solid fa-user-plus text-orange"></i> Tambah Pelanggan Baru`;
+        });
+    }
+}
+
+function renderPelangganTable() {
+    const rows = document.getElementById("pelanggan-rows");
+    if (!rows) return;
+    rows.innerHTML = "";
+
+    if (PELANGGAN.length === 0) {
+        rows.innerHTML = `<tr><td colspan="6" class="text-center text-muted" style="padding: 24px 0;">Belum ada data pelanggan.</td></tr>`;
+        return;
+    }
+
+    PELANGGAN.forEach(p => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="td-name"><i class="fa-solid fa-user text-muted" style="margin-right: 8px;"></i> ${p.nama}</td>
+            <td>${p.no_whatsapp}</td>
+            <td class="text-center">${p.total_transaksi || 0} kali</td>
+            <td><strong>${formatRupiah(p.total_belanja || 0)}</strong></td>
+            <td style="color: ${p.saldo_bon > 0 ? 'var(--accent-red)' : 'var(--success)'}; font-weight:700;">${formatRupiah(p.saldo_bon || 0)}</td>
+            <td>
+                <div class="action-btns">
+                    <button class="btn-icon edit" onclick="editPelanggan(${p.id})"><i class="fa-solid fa-pen-to-square"></i></button>
+                    <button class="btn-icon delete" onclick="deletePelanggan(${p.id})"><i class="fa-solid fa-trash"></i></button>
+                </div>
+            </td>
+        `;
+        rows.appendChild(tr);
+    });
+}
+
+window.editPelanggan = function(id) {
+    const p = PELANGGAN.find(cust => cust.id === id);
+    if (!p) return;
+    document.getElementById("pelanggan-id").value = p.id;
+    document.getElementById("pelanggan-nama").value = p.nama;
+    document.getElementById("pelanggan-wa").value = p.no_whatsapp;
+    document.getElementById("btn-cancel-pelanggan").style.display = "inline-flex";
+    document.getElementById("pelanggan-form-title").innerHTML = `<i class="fa-solid fa-user-pen text-orange"></i> Edit Pelanggan: ${p.nama}`;
+};
+
+window.deletePelanggan = async function(id) {
+    if (confirm("Hapus data pelanggan ini? Saldo bon akan terhapus.")) {
+        const res = await db.deletePelanggan(id);
+        if (res.success) {
+            await loadAllData();
+            renderPelangganTable();
+            populateCustomerDropdowns();
+            showToast("Pelanggan berhasil dihapus.", "success");
+        }
+    }
+};
+
+window.startNewShift = async function() {
+    if (confirm("Apakah Anda yakin ingin memulai shift baru? Ini akan menyalin sisa stok saat ini sebagai Stok Awal dan mereset jumlah Terjual harian.")) {
+        for (const item of MENU_ITEMS) {
+            item.stok_awal = item.stok_sistem;
+            item.terjual = 0;
+            await db.saveMenuItem(item);
+        }
+        await loadAllData();
+        renderStokTables();
+        showToast("Shift baru dimulai! Stok awal dan terjual telah di-reset.", "success");
+    }
+};
+
+window.printDailyStockReport = function() {
+    let rowsHtml = "";
+    MENU_ITEMS.forEach(item => {
+        let status = "AMAN";
+        if (item.stok_sistem <= 0) status = "HABIS";
+        else if (item.stok_sistem <= item.stok_minimum) status = "KRITIS";
+        else if (item.stok_sistem <= item.stok_minimum * 2) status = "PERINGATAN";
+
+        rowsHtml += `
+            <tr>
+                <td>${item.code || ""}</td>
+                <td>${item.name}</td>
+                <td style="text-align: center;">${item.stok_awal}</td>
+                <td style="text-align: center;">${item.terjual}</td>
+                <td style="text-align: center;">${item.stok_sistem}</td>
+                <td style="text-align: center;">${status}</td>
+            </tr>
+        `;
+    });
+
+    const win = window.open("", "_blank");
+    win.document.write(`
+        <html>
+            <head>
+                <title>Laporan Stok Harian</title>
+                <style>
+                    body { font-family: monospace; padding: 20px; color: #000; }
+                    h2 { text-align: center; margin-bottom: 5px; }
+                    .date { text-align: center; margin-bottom: 20px; font-size: 0.9rem; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+                    th, td { padding: 8px; border: 1px dashed #000; text-align: left; }
+                    th { background-color: #f2f2f2; }
+                </style>
+            </head>
+            <body onload="window.print(); window.close();">
+                <h2>ANGKRINGAN MAS EJA</h2>
+                <div class="date">Laporan Stok Harian - Tanggal: ${getTodayDateString()}</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Kode</th>
+                            <th>Nama Menu</th>
+                            <th>Stok Awal</th>
+                            <th>Terjual</th>
+                            <th>Sisa</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            </body>
+        </html>
+    `);
+    win.document.close();
+};

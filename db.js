@@ -16,37 +16,37 @@ if (localStorage.getItem("db_version") !== DB_VERSION) {
     localStorage.setItem("db_version", DB_VERSION);
 }
 
-// 27 Default Menu Items Seed with Buy Price (Harga Modal) and Stock
+// // 27 Default Menu Items Seed with Buy Price (Harga Modal), Stock and Codes
 const DEFAULT_MENU_SEED = [
-    { id: 1, name: "Nasi Bakar Ayam Jamur", category: "utama", price: 8000, harga_modal: 5000, stok_sistem: 5, stok_minimum: 5, emoji: "🍛", description: "Nasi gurih dibungkus daun pisang diisi suwiran ayam pedas & jamur, dibakar harum." },
-    { id: 2, name: "Nasi Bakar Teri Kemangi", category: "utama", price: 8000, harga_modal: 5000, stok_sistem: 5, stok_minimum: 5, emoji: "🍙", description: "Nasi gurih isi teri asin melimpah berpadu daun kemangi segar yang wangi dibakar kering." },
-    { id: 3, name: "Mie Goreng (Biasa)", category: "utama", price: 8000, harga_modal: 4500, stok_sistem: 40, stok_minimum: 5, emoji: "🍜", description: "Mie goreng khas angkringan dengan bumbu racikan kecap manis dan sayuran segar." },
-    { id: 4, name: "Mie Goreng + Telor", category: "utama", price: 12000, harga_modal: 7000, stok_sistem: 20, stok_minimum: 5, emoji: "🍳", description: "Mie goreng lezat lengkap dengan tambahan telur dadar atau mata sapi sesuai selera." },
-    { id: 5, name: "Mie Rebus (Biasa)", category: "utama", price: 8000, harga_modal: 4500, stok_sistem: 40, stok_minimum: 5, emoji: "🍲", description: "Mie rebus kuah hangat gurih dengan kol and sawi segar cocok untuk malam dingin." },
-    { id: 6, name: "Mie Rebus + Telor", category: "utama", price: 12000, harga_modal: 7000, stok_sistem: 20, stok_minimum: 5, emoji: "🥚", description: "Mie rebus hangat disajikan dengan rebusan telur matang yang gurih dan lezat." },
+    { id: 1, code: "NK-01", name: "Nasi Bakar Ayam Jamur", category: "utama", price: 8000, harga_modal: 5000, stok_sistem: 5, stok_awal: 5, terjual: 0, emoji: "🍛", description: "Nasi gurih dibungkus daun pisang diisi suwiran ayam pedas & jamur, dibakar harum." },
+    { id: 2, code: "NK-02", name: "Nasi Bakar Teri Kemangi", category: "utama", price: 8000, harga_modal: 5000, stok_sistem: 5, stok_awal: 5, terjual: 0, emoji: "🍙", description: "Nasi gurih isi teri asin melimpah berpadu daun kemangi segar yang wangi dibakar kering." },
+    { id: 3, code: "NK-03", name: "Mie Goreng (Biasa)", category: "utama", price: 8000, harga_modal: 4500, stok_sistem: 40, stok_awal: 40, terjual: 0, emoji: "🍜", description: "Mie goreng khas angkringan dengan bumbu racikan kecap manis dan sayuran segar." },
+    { id: 4, code: "NK-04", name: "Mie Goreng + Telor", category: "utama", price: 12000, harga_modal: 7000, stok_sistem: 20, stok_awal: 20, terjual: 0, emoji: "🍳", description: "Mie goreng lezat lengkap dengan tambahan telur dadar atau mata sapi sesuai selera." },
+    { id: 5, code: "NK-05", name: "Mie Rebus (Biasa)", category: "utama", price: 8000, harga_modal: 4500, stok_sistem: 40, stok_awal: 40, terjual: 0, emoji: "🍲", description: "Mie rebus kuah hangat gurih dengan kol and sawi segar cocok untuk malam dingin." },
+    { id: 6, code: "NK-06", name: "Mie Rebus + Telor", category: "utama", price: 12000, harga_modal: 7000, stok_sistem: 20, stok_awal: 20, terjual: 0, emoji: "🥚", description: "Mie rebus hangat disajikan dengan rebusan telur matang yang gurih dan lezat." },
     
-    { id: 7, name: "Sate Kulit", category: "sate", price: 4000, harga_modal: 2000, stok_sistem: 50, stok_minimum: 10, emoji: "🍢", description: "Sate kulit ayam gurih digoreng garing renyah merona." },
-    { id: 8, name: "Sate Usus", category: "sate", price: 3000, harga_modal: 1500, stok_sistem: 60, stok_minimum: 10, emoji: "🍢", description: "Sate usus ayam ungkep bumbu kuning digoreng gurih." },
-    { id: 9, name: "Sate Ceker", category: "sate", price: 3000, harga_modal: 1500, stok_sistem: 30, stok_minimum: 10, emoji: "🍢", description: "Sate ceker ayam bumbu manis gurih empuk digoreng sejenak." },
-    { id: 10, name: "Sate Sosis", category: "sate", price: 2000, harga_modal: 1000, stok_sistem: 40, stok_minimum: 10, emoji: "🌭", description: "Sate sosis goreng lezat disajikan dengan cocolan saus." },
-    { id: 11, name: "Sate Nugget", category: "sate", price: 2000, harga_modal: 1000, stok_sistem: 40, stok_minimum: 10, emoji: "🍢", description: "Sate nugget ayam olahan digoreng garing renyah." },
-    { id: 12, name: "Sate Ekado", category: "sate", price: 4000, harga_modal: 2200, stok_sistem: 25, stok_minimum: 5, emoji: "🍢", description: "Kantong kado olahan ikan berisi telur puyuh utuh digoreng gurih." },
-    { id: 13, name: "Sate Otak-Otak", category: "sate", price: 2000, harga_modal: 1000, stok_sistem: 45, stok_minimum: 10, emoji: "🍢", description: "Sate otak-otak ikan digoreng merekah gurih empuk khas angkringan." },
+    { id: 7, code: "ST-01", name: "Sate Kulit", category: "sate", price: 4000, harga_modal: 2000, stok_sistem: 50, stok_awal: 50, terjual: 0, emoji: "🍢", description: "Sate kulit ayam gurih digoreng garing renyah merona." },
+    { id: 8, code: "ST-02", name: "Sate Usus", category: "sate", price: 3000, harga_modal: 1500, stok_sistem: 60, stok_awal: 60, terjual: 0, emoji: "🍢", description: "Sate usus ayam ungkep bumbu kuning digoreng gurih." },
+    { id: 9, code: "ST-03", name: "Sate Ceker", category: "sate", price: 3000, harga_modal: 1500, stok_sistem: 30, stok_awal: 30, terjual: 0, emoji: "🍢", description: "Sate ceker ayam bumbu manis gurih empuk digoreng sejenak." },
+    { id: 10, code: "ST-04", name: "Sate Sosis", category: "sate", price: 2000, harga_modal: 1000, stok_sistem: 40, stok_awal: 40, terjual: 0, emoji: "🌭", description: "Sate sosis goreng lezat disajikan dengan cocolan saus." },
+    { id: 11, code: "ST-05", name: "Sate Nugget", category: "sate", price: 2000, harga_modal: 1000, stok_sistem: 40, stok_awal: 40, terjual: 0, emoji: "🍢", description: "Sate nugget ayam olahan digoreng garing renyah." },
+    { id: 12, code: "ST-06", name: "Sate Ekado", category: "sate", price: 4000, harga_modal: 2200, stok_sistem: 25, stok_awal: 25, terjual: 0, emoji: "🍢", description: "Kantong kado olahan ikan berisi telur puyuh utuh digoreng gurih." },
+    { id: 13, code: "ST-07", name: "Sate Otak-Otak", category: "sate", price: 2000, harga_modal: 1000, stok_sistem: 45, stok_awal: 45, terjual: 0, emoji: "🍢", description: "Sate otak-otak ikan digoreng merekah gurih empuk khas angkringan." },
     
-    { id: 14, name: "Matcha Latte", category: "minuman", price: 10000, harga_modal: 5000, stok_sistem: 30, stok_minimum: 5, emoji: "🍵", description: "Minuman es/hangat teh hijau Jepang berpadu susu manis lembut." },
-    { id: 15, name: "Es Coklat Premium", category: "minuman", price: 10000, harga_modal: 5000, stok_sistem: 35, stok_minimum: 5, emoji: "🍫", description: "Minuman coklat pekat premium gurih disajikan es atau hangat." },
-    { id: 16, name: "Teh Tarik", category: "minuman", price: 8000, harga_modal: 4000, stok_sistem: 30, stok_minimum: 5, emoji: "🥛", description: "Racikan teh hitam khas dan susu kental manis yang ditarik hingga berbusa." },
-    { id: 17, name: "Es Lemon Tea", category: "minuman", price: 8000, harga_modal: 3500, stok_sistem: 40, stok_minimum: 5, emoji: "🍋", description: "Teh segar berpadu dengan asam segar perasan lemon asli." },
-    { id: 18, name: "Wedang Jahe Susu", category: "minuman", price: 6000, harga_modal: 3000, stok_sistem: 30, stok_minimum: 5, emoji: "🫚", description: "Minuman jahe geprek hangat disiram susu kental manis berkhasiat." },
-    { id: 19, name: "Es Extra Joss", category: "minuman", price: 8000, harga_modal: 4000, stok_sistem: 25, stok_minimum: 5, emoji: "💛", description: "Minuman energi Extra Joss dilarutkan air es segar penambah stamina." },
-    { id: 20, name: "Es Extra Joss Susu", category: "minuman", price: 10000, harga_modal: 5500, stok_sistem: 25, stok_minimum: 5, emoji: "🥛", description: "Kombinasi energi joss berpadu manis legitnya kental manis putih es." },
-    { id: 21, name: "Kopi Item (Robusta Tegal)", category: "minuman", price: 6000, harga_modal: 2500, stok_sistem: 50, stok_minimum: 5, emoji: "☕", description: "Kopi hitam manis robusta Tegal diseduh cangkir tradisional." },
-    { id: 22, name: "Es NutriSari", category: "minuman", price: 8000, harga_modal: 3500, stok_sistem: 35, stok_minimum: 5, emoji: "🍊", description: "Minuman rasa jeruk NutriSari manis menyegarkan dahaga siang malam." },
-    { id: 23, name: "Goodday Cappuccino", category: "minuman", price: 10000, harga_modal: 5000, stok_sistem: 30, stok_minimum: 5, emoji: "☕", description: "Seduhan kopi cappuccino sachet instan lengkap bertabur choco granule di atasnya." },
-    { id: 24, name: "Teh (Manis/Tawar)", category: "minuman", price: 4000, harga_modal: 1500, stok_sistem: 100, stok_minimum: 10, emoji: "🍵", description: "Teh wangi melati khas Tegal (bisa disajikan hangat atau menggunakan es)." },
-    { id: 25, name: "Air Es", category: "minuman", price: 2000, harga_modal: 500, stok_sistem: 80, stok_minimum: 5, emoji: "🧊", description: "Segelas air putih segar disajikan dingin dengan es batu." },
-    { id: 26, name: "Air Putih", category: "minuman", price: 1000, harga_modal: 200, stok_sistem: 80, stok_minimum: 5, emoji: "💧", description: "Segelas air putih bersih suhu ruang biasa." },
-    { id: 27, name: "Air Mineral", category: "minuman", price: 5000, harga_modal: 2500, stok_sistem: 50, stok_minimum: 5, emoji: "🍼", description: "Air putih dalam kemasan botol higienis dan praktis." }
+    { id: 14, code: "WJ-01", name: "Matcha Latte", category: "minuman", price: 10000, harga_modal: 5000, stok_sistem: 30, stok_awal: 30, terjual: 0, emoji: "🍵", description: "Minuman es/hangat teh hijau Jepang berpadu susu manis lembut." },
+    { id: 15, code: "WJ-02", name: "Es Coklat Premium", category: "minuman", price: 10000, harga_modal: 5000, stok_sistem: 35, stok_awal: 35, terjual: 0, emoji: "🍫", description: "Minuman coklat pekat premium gurih disajikan es atau hangat." },
+    { id: 16, code: "WJ-03", name: "Teh Tarik", category: "minuman", price: 8000, harga_modal: 4000, stok_sistem: 30, stok_awal: 30, terjual: 0, emoji: "🥛", description: "Racikan teh hitam khas dan susu kental manis yang ditarik hingga berbusa." },
+    { id: 17, code: "WJ-04", name: "Es Lemon Tea", category: "minuman", price: 8000, harga_modal: 3500, stok_sistem: 40, stok_awal: 40, terjual: 0, emoji: "🍋", description: "Teh segar berpadu dengan asam segar perasan lemon asli." },
+    { id: 18, code: "WJ-05", name: "Wedang Jahe Susu", category: "minuman", price: 6000, harga_modal: 3000, stok_sistem: 30, stok_awal: 30, terjual: 0, emoji: "🫚", description: "Minuman jahe geprek hangat disiram susu kental manis berkhasiat." },
+    { id: 19, code: "WJ-06", name: "Es Extra Joss", category: "minuman", price: 8000, harga_modal: 4000, stok_sistem: 25, stok_awal: 25, terjual: 0, emoji: "💛", description: "Minuman energi Extra Joss dilarutkan air es segar penambah stamina." },
+    { id: 20, code: "WJ-07", name: "Es Extra Joss Susu", category: "minuman", price: 10000, harga_modal: 5500, stok_sistem: 25, stok_awal: 25, terjual: 0, emoji: "🥛", description: "Kombinasi energi joss berpadu manis legitnya kental manis putih es." },
+    { id: 21, code: "WJ-08", name: "Kopi Item (Robusta Tegal)", category: "minuman", price: 6000, harga_modal: 2500, stok_sistem: 50, stok_awal: 50, terjual: 0, emoji: "☕", description: "Kopi hitam manis robusta Tegal diseduh cangkir tradisional." },
+    { id: 22, code: "WJ-09", name: "Es NutriSari", category: "minuman", price: 8000, harga_modal: 3500, stok_sistem: 35, stok_awal: 35, terjual: 0, emoji: "🍊", description: "Minuman rasa jeruk NutriSari manis menyegarkan dahaga siang malam." },
+    { id: 23, code: "WJ-10", name: "Goodday Cappuccino", category: "minuman", price: 10000, harga_modal: 5000, stok_sistem: 30, stok_awal: 30, terjual: 0, emoji: "☕", description: "Seduhan kopi cappuccino sachet instan lengkap bertabur choco granule di atasnya." },
+    { id: 24, code: "WJ-11", name: "Teh (Manis/Tawar)", category: "minuman", price: 4000, harga_modal: 1500, stok_sistem: 100, stok_awal: 100, terjual: 0, emoji: "🍵", description: "Teh wangi melati khas Tegal (bisa disajikan hangat atau menggunakan es)." },
+    { id: 25, code: "WJ-12", name: "Air Es", category: "minuman", price: 2000, harga_modal: 500, stok_sistem: 80, stok_awal: 80, terjual: 0, emoji: "🧊", description: "Segelas air putih segar disajikan dingin dengan es batu." },
+    { id: 26, code: "WJ-13", name: "Air Putih", category: "minuman", price: 1000, harga_modal: 200, stok_sistem: 80, stok_awal: 80, terjual: 0, emoji: "💧", description: "Segelas air putih bersih suhu ruang biasa." },
+    { id: 27, code: "WJ-14", name: "Air Mineral", category: "minuman", price: 5000, harga_modal: 2500, stok_sistem: 50, stok_awal: 50, terjual: 0, emoji: "🍼", description: "Air putih dalam kemasan botol higienis dan praktis." }
 ];
 
 const DEFAULT_SUPABASE_URL = "https://rtacieyyeeniruvepkfx.supabase.co";
@@ -139,6 +139,10 @@ const db = {
             const defaultItem = DEFAULT_MENU_SEED.find(d => d.id === item.id) || {};
             let newItem = { ...item };
             
+            if (newItem.code === undefined || newItem.code === null) {
+                newItem.code = defaultItem.code !== undefined ? defaultItem.code : ("NK-" + newItem.id);
+                normalized = true;
+            }
             if (newItem.harga_modal === undefined || newItem.harga_modal === null) {
                 newItem.harga_modal = defaultItem.harga_modal !== undefined ? defaultItem.harga_modal : 0;
                 normalized = true;
@@ -149,6 +153,14 @@ const db = {
             }
             if (newItem.stok_minimum === undefined || newItem.stok_minimum === null) {
                 newItem.stok_minimum = defaultItem.stok_minimum !== undefined ? defaultItem.stok_minimum : 0;
+                normalized = true;
+            }
+            if (newItem.stok_awal === undefined || newItem.stok_awal === null) {
+                newItem.stok_awal = defaultItem.stok_awal !== undefined ? defaultItem.stok_awal : newItem.stok_sistem;
+                normalized = true;
+            }
+            if (newItem.terjual === undefined || newItem.terjual === null) {
+                newItem.terjual = defaultItem.terjual !== undefined ? defaultItem.terjual : 0;
                 normalized = true;
             }
             
@@ -168,11 +180,17 @@ const db = {
 
         // Only send columns that exist in the Supabase schema
         const supabasePayload = {
+            code: payload.code || null,
             name: payload.name,
             category: payload.category,
             emoji: payload.emoji,
             image: payload.image || null,
             price: payload.price,
+            harga_modal: payload.harga_modal || 0,
+            stok_sistem: payload.stok_sistem || 0,
+            stok_minimum: payload.stok_minimum || 5,
+            stok_awal: payload.stok_awal !== undefined ? payload.stok_awal : (payload.stok_sistem || 0),
+            terjual: payload.terjual || 0,
             description: payload.description || ""
         };
 
@@ -193,8 +211,10 @@ const db = {
                 }
                 if (!error) return { success: true, savedToCloud: true };
                 console.error("Supabase saveMenuItem returned error:", error);
+                return { success: false, error: error.message || JSON.stringify(error) };
             } catch (err) {
-                console.error("Supabase saveMenuItem exception, falling back:", err);
+                console.error("Supabase saveMenuItem exception:", err);
+                return { success: false, error: err.message || JSON.stringify(err) };
             }
         }
 
@@ -506,6 +526,98 @@ const db = {
 
         localStorage.setItem("angkringan_food_waste", JSON.stringify(wastes));
         return { success: true, waste: payload };
+    },
+
+    // ----------------------------------------------------
+    // 5.5 PELANGGAN (CUSTOMER LOYALTY & DEBT) API
+    // ----------------------------------------------------
+    async getPelanggan() {
+        const client = this.getSupabase();
+        if (client) {
+            try {
+                const { data, error } = await client
+                    .from("pelanggan")
+                    .select("*")
+                    .order("nama", { ascending: true });
+                if (!error) return data;
+            } catch (err) {
+                console.error("Supabase getPelanggan error, falling back:", err);
+            }
+        }
+
+        let localData = localStorage.getItem("angkringan_pelanggan");
+        if (!localData) {
+            // Seed default loyal customers matching wireframes
+            const defaultPelanggan = [
+                { id: 1, nama: "Budi S.", no_whatsapp: "082329547641", total_transaksi: 15, total_belanja: 245000, saldo_bon: 45000 },
+                { id: 2, nama: "Rina W.", no_whatsapp: "081234567890", total_transaksi: 8, total_belanja: 120000, saldo_bon: 78000 },
+                { id: 3, nama: "Pak Harto", no_whatsapp: "085712345678", total_transaksi: 22, total_belanja: 410000, saldo_bon: 32000 }
+            ];
+            localStorage.setItem("angkringan_pelanggan", JSON.stringify(defaultPelanggan));
+            return defaultPelanggan;
+        }
+        return JSON.parse(localData);
+    },
+
+    async savePelanggan(pelanggan) {
+        const client = this.getSupabase();
+        const payload = { ...pelanggan };
+        if (client) {
+            try {
+                let error;
+                if (payload.id) {
+                    const updatePayload = { ...payload };
+                    delete updatePayload.id;
+                    const { error: err } = await client
+                        .from("pelanggan")
+                        .update(updatePayload)
+                        .eq("id", payload.id);
+                    error = err;
+                } else {
+                    const insertPayload = { ...payload };
+                    delete insertPayload.id;
+                    const { error: err } = await client
+                        .from("pelanggan")
+                        .insert([insertPayload]);
+                    error = err;
+                }
+                if (!error) return { success: true };
+            } catch (err) {
+                console.error("Supabase savePelanggan error, falling back:", err);
+            }
+        }
+
+        let localData = localStorage.getItem("angkringan_pelanggan");
+        let list = localData ? JSON.parse(localData) : [];
+        if (payload.id) {
+            const idx = list.findIndex(p => p.id === payload.id);
+            if (idx !== -1) list[idx] = payload;
+        } else {
+            const nextId = list.length > 0 ? Math.max(...list.map(p => p.id || 0)) + 1 : 1;
+            payload.id = nextId;
+            list.push(payload);
+        }
+        localStorage.setItem("angkringan_pelanggan", JSON.stringify(list));
+        return { success: true, pelanggan: payload };
+    },
+
+    async deletePelanggan(id) {
+        const client = this.getSupabase();
+        if (client) {
+            try {
+                const { error } = await client.from("pelanggan").delete().eq("id", id);
+                if (!error) return { success: true };
+            } catch (err) {
+                console.error("Supabase deletePelanggan error, falling back:", err);
+            }
+        }
+        let localData = localStorage.getItem("angkringan_pelanggan");
+        if (localData) {
+            let list = JSON.parse(localData);
+            list = list.filter(p => p.id !== id);
+            localStorage.setItem("angkringan_pelanggan", JSON.stringify(list));
+        }
+        return { success: true };
     },
 
     // ----------------------------------------------------
