@@ -922,19 +922,24 @@ async function saveMenuItemForm(e) {
 
     if (idVal !== "") item.id = parseInt(idVal);
 
-    const res = await db.saveMenuItem(item);
-    if (res.success) {
-        closeItemModal();
-        await loadAllData();
-        renderStokTables();
-        renderDashboardStats();
-        if (res.savedToCloud === false) {
-            showToast("⚠️ Menu tersimpan di lokal saja — foto tidak masuk Supabase! Coba kompres foto lebih kecil (di bawah 1MB).", "warning");
+    try {
+        const res = await db.saveMenuItem(item);
+        if (res.success) {
+            closeItemModal();
+            await loadAllData();
+            renderStokTables();
+            renderDashboardStats();
+            if (res.savedToCloud === false) {
+                alert("⚠️ Menu tersimpan di LOKAL saja (foto gagal masuk Supabase Cloud). Pastikan koneksi internet bagus.");
+            } else {
+                alert("✅ Menu berhasil disimpan ke Supabase Cloud!");
+            }
         } else {
-            showToast("✅ Menu berhasil disimpan ke Supabase Cloud!", "success");
+            alert("❌ Gagal menyimpan menu!");
         }
-    } else {
-        alert("Gagal menyimpan menu!");
+    } catch (error) {
+        console.error(error);
+        alert("🚨 Terjadi error saat menyimpan: " + error.message);
     }
 }
 
