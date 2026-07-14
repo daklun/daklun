@@ -46,7 +46,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     checkAuthentication();
     setupTabSwitching();
     setupConfigForms();
-    
+    setupImageUpload();
+
     if (isLoggedIn) {
         await loadAllData();
         setupDashboardTab();
@@ -783,6 +784,34 @@ function renderMenuCRUD() {
     }
 }
 
+// -------------------------------------------------------
+// Image Upload Helper
+// -------------------------------------------------------
+function setupImageUpload() {
+    const fileInput = document.getElementById("item-image-file");
+    if (!fileInput) return;
+    fileInput.addEventListener("change", function() {
+        const file = this.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById("item-image").value = e.target.result;
+            document.getElementById("item-image-filename").textContent = file.name;
+            document.getElementById("item-image-preview-img").src = e.target.result;
+            document.getElementById("item-image-preview").style.display = "block";
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function clearMenuImage() {
+    document.getElementById("item-image").value = "";
+    document.getElementById("item-image-file").value = "";
+    document.getElementById("item-image-filename").textContent = "Belum ada gambar dipilih";
+    document.getElementById("item-image-preview").style.display = "none";
+    document.getElementById("item-image-preview-img").src = "";
+}
+
 function openItemModal(id = null) {
     if (!itemForm || !itemModal || !modalTitle) return;
     itemForm.reset();
@@ -799,6 +828,15 @@ function openItemModal(id = null) {
             document.getElementById("item-category").value = item.category;
             document.getElementById("item-emoji").value = item.emoji;
             document.getElementById("item-image").value = item.image || "";
+            document.getElementById("item-image-file").value = "";
+            if (item.image) {
+                document.getElementById("item-image-filename").textContent = "Gambar tersimpan";
+                document.getElementById("item-image-preview-img").src = item.image;
+                document.getElementById("item-image-preview").style.display = "block";
+            } else {
+                document.getElementById("item-image-filename").textContent = "Belum ada gambar dipilih";
+                document.getElementById("item-image-preview").style.display = "none";
+            }
             document.getElementById("item-price").value = item.price;
             document.getElementById("item-modal-price").value = item.harga_modal;
             document.getElementById("item-stock").value = item.stok_sistem;
