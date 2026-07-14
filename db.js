@@ -165,24 +165,30 @@ const db = {
     async saveMenuItem(item) {
         const client = this.getSupabase();
         const payload = { ...item };
-        
+
+        // Only send columns that exist in the Supabase schema
+        const supabasePayload = {
+            name: payload.name,
+            category: payload.category,
+            emoji: payload.emoji,
+            image: payload.image || null,
+            price: payload.price,
+            description: payload.description || ""
+        };
+
         if (client) {
             try {
                 let error;
                 if (payload.id) {
-                    const updatePayload = { ...payload };
-                    delete updatePayload.id;
                     const { error: err } = await client
                         .from("menu_items")
-                        .update(updatePayload)
+                        .update(supabasePayload)
                         .eq("id", payload.id);
                     error = err;
                 } else {
-                    const insertPayload = { ...payload };
-                    delete insertPayload.id;
                     const { error: err } = await client
                         .from("menu_items")
-                        .insert([insertPayload]);
+                        .insert([supabasePayload]);
                     error = err;
                 }
                 if (!error) return { success: true, savedToCloud: true };
@@ -195,21 +201,20 @@ const db = {
         // Fallback: save to localStorage only (won't sync to other devices)
         let localData = localStorage.getItem("angkringan_menu");
         let items = localData ? JSON.parse(localData) : [...DEFAULT_MENU_SEED];
-        
+
         if (payload.id) {
             const index = items.findIndex(i => i.id === payload.id);
-            if (index !== -1) {
-                items[index] = payload;
-            }
+            if (index !== -1) items[index] = payload;
         } else {
             const nextId = items.length > 0 ? Math.max(...items.map(i => i.id)) + 1 : 1;
             payload.id = nextId;
             items.push(payload);
         }
-        
+
         localStorage.setItem("angkringan_menu", JSON.stringify(items));
         return { success: true, savedToCloud: false, item: payload };
     },
+
 
     async updateMenuStocks(stockUpdates) {
         for (const update of stockUpdates) {
