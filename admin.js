@@ -798,6 +798,7 @@ function openItemModal(id = null) {
             document.getElementById("item-name").value = item.name;
             document.getElementById("item-category").value = item.category;
             document.getElementById("item-emoji").value = item.emoji;
+            document.getElementById("item-image").value = item.image || "";
             document.getElementById("item-price").value = item.price;
             document.getElementById("item-modal-price").value = item.harga_modal;
             document.getElementById("item-stock").value = item.stok_sistem;
@@ -820,6 +821,7 @@ async function saveMenuItemForm(e) {
         name: document.getElementById("item-name").value,
         category: document.getElementById("item-category").value,
         emoji: document.getElementById("item-emoji").value,
+        image: document.getElementById("item-image").value || null,
         price: Number(document.getElementById("item-price").value),
         harga_modal: Number(document.getElementById("item-modal-price").value),
         stok_sistem: Number(document.getElementById("item-stock").value),
