@@ -787,20 +787,51 @@ function renderMenuCRUD() {
 // -------------------------------------------------------
 // Image Upload Helper
 // -------------------------------------------------------
+function compressImage(file, maxWidth, maxHeight, quality) {
+    return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                let width = img.width;
+                let height = img.height;
+
+                // Scale down proportionally
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width = Math.round(width * ratio);
+                    height = Math.round(height * ratio);
+                }
+
+                const canvas = document.createElement("canvas");
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext("2d");
+                ctx.drawImage(img, 0, 0, width, height);
+                resolve(canvas.toDataURL("image/jpeg", quality));
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
 function setupImageUpload() {
     const fileInput = document.getElementById("item-image-file");
     if (!fileInput) return;
-    fileInput.addEventListener("change", function() {
+    fileInput.addEventListener("change", async function() {
         const file = this.files[0];
         if (!file) return;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById("item-image").value = e.target.result;
-            document.getElementById("item-image-filename").textContent = file.name;
-            document.getElementById("item-image-preview-img").src = e.target.result;
-            document.getElementById("item-image-preview").style.display = "block";
-        };
-        reader.readAsDataURL(file);
+
+        document.getElementById("item-image-filename").textContent = "⏳ Mengompres gambar...";
+
+        // Compress to max 400x400, quality 0.75 — keeps Base64 well under 100KB
+        const compressed = await compressImage(file, 400, 400, 0.75);
+
+        document.getElementById("item-image").value = compressed;
+        document.getElementById("item-image-filename").textContent = `✅ ${file.name} (terkompresi)`;
+        document.getElementById("item-image-preview-img").src = compressed;
+        document.getElementById("item-image-preview").style.display = "block";
     });
 }
 
