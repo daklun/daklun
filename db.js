@@ -309,11 +309,14 @@ const db = {
                 delete insertPayload.id;
                 const { error } = await client.from("transactions").insert([insertPayload]);
                 if (!error) return { success: true };
+                // Kembalikan error Supabase agar terlihat
+                return { success: false, error: error.message || JSON.stringify(error) };
             } catch (err) {
-                console.error("Supabase saveTransaction error, falling back:", err);
+                return { success: false, error: err.message || String(err) };
             }
         }
 
+        // Tidak ada koneksi Supabase - simpan ke localStorage
         let localData = localStorage.getItem("angkringan_transactions");
         let transactions = localData ? JSON.parse(localData) : [];
         
@@ -322,7 +325,7 @@ const db = {
         transactions.unshift(payload);
         
         localStorage.setItem("angkringan_transactions", JSON.stringify(transactions));
-        return { success: true, transaction: payload };
+        return { success: false, error: "Tidak terhubung ke Supabase - tersimpan lokal saja" };
     },
 
     // ----------------------------------------------------
