@@ -21,6 +21,8 @@ const paymentInstructionsBox = document.getElementById("payment-instructions-box
 const paymentDetailsText = document.getElementById("payment-details-text");
 const waPreviewContent = document.getElementById("wa-preview-content");
 const sendWhatsappBtn = document.getElementById("send-whatsapp-btn");
+const orderSuccessModal = document.getElementById("order-success-modal");
+const orderReceiptContent = document.getElementById("order-receipt-content");
 const mobileToggle = document.getElementById("mobile-toggle");
 const mobileClose = document.getElementById("mobile-close");
 const mobileNav = document.getElementById("mobile-nav");
@@ -83,15 +85,9 @@ function setupEventListeners() {
         paymentMethodInput.addEventListener("change", updateWhatsAppPreview);
     }
 
-    // WA Redirect
+    // Submit Pesanan Langsung
     if (sendWhatsappBtn) {
-        sendWhatsappBtn.addEventListener("click", () => {
-            const text = buildWhatsAppMessage();
-            if (!text) return;
-            const encodedText = encodeURIComponent(text);
-            const url = `https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodedText}`;
-            window.open(url, "_blank");
-        });
+        sendWhatsappBtn.addEventListener("click", submitOrder);
     }
 
     // Mobile nav toggle
@@ -414,18 +410,136 @@ function buildWhatsAppMessage() {
 
 function updateWhatsAppPreview() {
     if (!waPreviewContent || !sendWhatsappBtn) return;
-    const text = buildWhatsAppMessage();
-    if (!text) {
+    // Hitung total
+    let total = 0;
+    let itemCount = 0;
+    Object.entries(cart).forEach(([id, qty]) => {
+        const item = MENU_ITEMS.find(m => m.id === parseInt(id));
+        if (item) { total += item.price * qty; itemCount += qty; }
+    });
+
+    if (itemCount === 0) {
         waPreviewContent.textContent = "Piring virtual Anda masih kosong...";
         sendWhatsappBtn.disabled = true;
         sendWhatsappBtn.style.opacity = "0.5";
         sendWhatsappBtn.style.cursor = "not-allowed";
     } else {
-        waPreviewContent.textContent = text;
+        let preview = `📋 RINGKASAN PESANAN\n`;
+        preview += `${'─'.repeat(30)}\n`;
+        Object.entries(cart).forEach(([id, qty]) => {
+            const item = MENU_ITEMS.find(m => m.id === parseInt(id));
+            if (item) preview += `${item.emoji} ${qty}x ${item.name} — ${formatRupiah(item.price * qty)}\n`;
+        });
+        preview += `${'─'.repeat(30)}\n`;
+        preview += `💰 TOTAL: ${formatRupiah(total)}`;
+        waPreviewContent.textContent = preview;
         sendWhatsappBtn.disabled = false;
         sendWhatsappBtn.style.opacity = "1";
         sendWhatsappBtn.style.cursor = "pointer";
     }
+}
+
+async function submitOrder() {
+    const name = customerNameInput ? customerNameInput.value.trim() : "";
+    const note = orderNoteInput ? orderNoteInput.value.trim() : "";
+    const paymentMethod = paymentMethodInput ? paymentMethodInput.value : "Bayar di Tempat";
+
+    if (!name) {
+        customerNameInput && customerNameInput.focus();
+        customerNameInput && (customerNameInput.style.border = "2px solid #ef4444");
+        setTimeout(() => customerNameInput && (customerNameInput.style.border = ""), 2000);
+        return;
+    }
+
+    // Build items list
+    const orderItems = [];
+    let totalSum = 0;
+    Object.entries(cart).forEach(([id, qty]) => {
+        const item = MENU_ITEMS.find(m => m.id === parseInt(id));
+        if (item) {
+            orderItems.push({ id: item.id, name: item.name, code: item.code || "", price: item.price, qty, emoji: item.emoji });
+            totalSum += item.price * qty;
+        }
+    });
+
+    if (orderItems.length === 0) return;
+
+    // Disable button saat loading
+    sendWhatsappBtn.disabled = true;
+    sendWhatsappBtn.textContent = "⏳ Memproses...";
+
+    const transaction = {
+        customer_name: name,
+        items: JSON.stringify(orderItems),
+        total: totalSum,
+        payment_method: paymentMethod,
+        note: note,
+        status: "pending",
+        source: "online",
+        timestamp: new Date().toISOString()
+    };
+
+    try {
+        await db.saveTransaction(transaction);
+    } catch (err) {
+        console.error("Gagal menyimpan pesanan:", err);
+    }
+
+    // Tampilkan struk konfirmasi
+    showOrderSuccess(name, orderItems, totalSum, paymentMethod, note);
+
+    // Reset cart
+    cart = {};
+    updateCartUI();
+    if (customerNameInput) customerNameInput.value = "";
+    if (orderNoteInput) orderNoteInput.value = "";
+    sendWhatsappBtn.disabled = false;
+    sendWhatsappBtn.innerHTML = '✅ Konfirmasi Pesanan';
+}
+
+function showOrderSuccess(name, items, total, paymentMethod, note) {
+    if (!orderSuccessModal || !orderReceiptContent) return;
+
+    const now = new Date();
+    const timeStr = now.toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+    const orderNum = Math.floor(Math.random() * 900 + 100);
+
+    let html = `
+        <div style="text-align:center; margin-bottom:16px;">
+            <div style="font-size:3rem;">✅</div>
+            <h2 style="color:#22c55e; margin:8px 0 4px;">Pesanan Diterima!</h2>
+            <p style="color:#9ca3af; font-size:0.85rem;">No. Antrian: <strong style="color:#f97316; font-size:1.2rem;">#${orderNum}</strong></p>
+        </div>
+        <div style="background:#1a1a2e; border-radius:12px; padding:16px; margin-bottom:12px; font-size:0.85rem;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#9ca3af;">Pelanggan</span><strong>${name}</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                <span style="color:#9ca3af;">Waktu</span><span>${timeStr}</span>
+            </div>
+            <div style="display:flex; justify-content:space-between;">
+                <span style="color:#9ca3af;">Pembayaran</span><span>${paymentMethod}</span>
+            </div>
+        </div>
+        <div style="background:#1a1a2e; border-radius:12px; padding:16px; margin-bottom:12px;">
+            <p style="color:#9ca3af; font-size:0.75rem; margin:0 0 10px; text-transform:uppercase; letter-spacing:1px;">Pesanan Anda</p>
+            ${items.map(i => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px; font-size:0.85rem;">
+                    <span>${i.emoji} ${i.qty}x ${i.name}</span>
+                    <strong>${formatRupiah(i.price * i.qty)}</strong>
+                </div>`).join("")}
+            <div style="border-top:1px solid #374151; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between;">
+                <strong>TOTAL</strong>
+                <strong style="color:#f97316; font-size:1.1rem;">${formatRupiah(total)}</strong>
+            </div>
+        </div>
+        ${note ? `<div style="background:#1a1a2e; border-radius:12px; padding:12px; margin-bottom:12px; font-size:0.85rem;"><span style="color:#9ca3af;">Catatan: </span>${note}</div>` : ""}
+        <p style="text-align:center; color:#9ca3af; font-size:0.8rem;">Silakan tunjukkan nomor antrian <strong style="color:#f97316;">#${orderNum}</strong> ke kasir 🙏</p>
+    `;
+
+    orderReceiptContent.innerHTML = html;
+    orderSuccessModal.style.display = "flex";
+    document.body.style.overflow = "hidden";
 }
 
 function formatRupiah(number) {
