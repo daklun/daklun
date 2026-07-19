@@ -194,6 +194,20 @@ function getTodayDateString() {
     return localDate.toISOString().split('T')[0];
 }
 
+function parseItems(itemsData) {
+    if (!itemsData) return [];
+    if (typeof itemsData === "object") {
+        return Array.isArray(itemsData) ? itemsData : [itemsData];
+    }
+    try {
+        const parsed = JSON.parse(itemsData);
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (e) {
+        console.error("Error parsing items:", e);
+        return [];
+    }
+}
+
 // ----------------------------------------------------
 // TAB 1: DASBOR (DASHBOARD SUMMARY)
 // ----------------------------------------------------
@@ -280,10 +294,13 @@ function renderDashboardStats() {
         } else {
             todayTrans.forEach(t => {
                 const tr = document.createElement("tr");
-                const itemsCount = JSON.parse(t.items).reduce((acc, i) => acc + i.qty, 0);
+                const itemsList = parseItems(t.items);
+                const itemsCount = itemsList.reduce((acc, i) => acc + (i.qty || 1), 0);
+                const sourceBadge = t.source === "online" ? `<span class="category-pill" style="color: #f97316; border-color: rgba(249,115,22,0.3); background: rgba(249,115,22,0.1); margin-left: 4px;">Online</span>` : "";
+                const jamStr = t.jam ? t.jam.substring(0, 5) : "--:--";
                 tr.innerHTML = `
-                    <td>${t.jam.substring(0, 5)}</td>
-                    <td><span class="category-pill">${t.pembayaran}</span></td>
+                    <td>${jamStr} ${sourceBadge}</td>
+                    <td><span class="category-pill">${t.pembayaran || 'Tunai'}</span></td>
                     <td>${itemsCount} Porsi</td>
                     <td><strong>${formatRupiah(t.total_harga)}</strong></td>
                     <td>
@@ -673,13 +690,13 @@ function showReceiptModal(transactionId, paidAmount = null, changeAmount = null)
     const t = TRANSACTIONS.find(trans => trans.id === transactionId);
     if (!t) return;
 
-    const items = JSON.parse(t.items);
+    const items = parseItems(t.items);
     let itemsHtml = "";
     items.forEach(i => {
         itemsHtml += `
             <div class="receipt-row">
                 <span>${i.name} (${i.qty}x)</span>
-                <span>${formatRupiah(i.price * i.qty)}</span>
+                <span>${formatRupiah((i.price || 0) * (i.qty || 1))}</span>
             </div>
         `;
     });
@@ -1267,9 +1284,9 @@ function renderLaporanPembukuan() {
     // COGS (Harga Pokok Penjualan)
     let cogs = 0;
     dayTrans.forEach(t => {
-        const items = JSON.parse(t.items);
+        const items = parseItems(t.items);
         items.forEach(i => {
-            cogs += (Number(i.harga_modal) * i.qty);
+            cogs += (Number(i.harga_modal || 0) * (i.qty || 1));
         });
     });
 
@@ -1385,8 +1402,8 @@ function renderSalesTrendChart() {
         
         let cogs = 0;
         dayTrans.forEach(t => {
-            const items = JSON.parse(t.items);
-            items.forEach(i => { cogs += (Number(i.harga_modal) * i.qty); });
+            const items = parseItems(t.items);
+            items.forEach(i => { cogs += (Number(i.harga_modal || 0) * (i.qty || 1)); });
         });
 
         const dayExp = EXPENSES.filter(e => e.tanggal === dateStr).reduce((acc, e) => acc + Number(e.jumlah), 0);
