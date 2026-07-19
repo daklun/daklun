@@ -334,8 +334,12 @@ function updatePlateItemVisual(item, qty) {
         visualItem.style.left = `calc(50% + ${pos.x}px - 26px)`;
         visualItem.style.top = `calc(50% + ${pos.y}px - 26px)`;
         
+        const iconHTML = item.image
+            ? `<img src="${item.image}" alt="${item.name}" style="width:42px; height:42px; border-radius:50%; object-fit:cover; transform:rotate(${pos.rotation}deg); display:block; border:2px solid rgba(255,255,255,0.3);" onerror="this.style.display='none'; this.nextElementSibling.style.display='inline-block';"><span style="display:none; font-size:1.6rem; transform:rotate(${pos.rotation}deg);">${item.emoji}</span>`
+            : `<span class="item-icon" style="transform: rotate(${pos.rotation}deg); display: inline-block;">${item.emoji}</span>`;
+
         visualItem.innerHTML = `
-            <span class="item-icon" style="transform: rotate(${pos.rotation}deg); display: inline-block;">${item.emoji}</span>
+            ${iconHTML}
             <span class="item-badge" id="plate-badge-${item.id}">${qty}</span>
         `;
         
@@ -469,9 +473,11 @@ async function submitOrder() {
     sendWhatsappBtn.textContent = "⏳ Memproses...";
 
     const now = new Date();
+    const tanggal = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    const jam = now.toTimeString().split(" ")[0];
     const transaction = {
-        tanggal: now.toISOString().split("T")[0],
-        jam: now.toTimeString().split(" ")[0],
+        tanggal: tanggal,
+        jam: jam,
         items: orderItems,
         total_harga: totalSum,
         pembayaran: paymentMethod,
