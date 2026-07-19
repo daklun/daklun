@@ -1031,7 +1031,8 @@ section {
     background-color: rgba(255,255,255,0.04);
 }
 
-.form-input option {
+.form-input option,
+.form-control option {
     background-color: #ffffff;
     color: #111111;
 }
