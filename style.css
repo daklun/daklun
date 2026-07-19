@@ -1031,6 +1031,11 @@ section {
     background-color: rgba(255,255,255,0.04);
 }
 
+.form-input option {
+    background-color: #ffffff;
+    color: #111111;
+}
+
 .payment-info-box {
     background-color: var(--success-glow);
     border: 1px solid rgba(46, 196, 182, 0.3);
