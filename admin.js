@@ -475,14 +475,24 @@ function renderPOSMenu() {
         const isCritical = item.stok_sistem <= item.stok_minimum;
         const stockClass = item.stok_sistem === 0 ? "critical" : (isCritical ? "critical" : "");
         const stockText = item.stok_sistem === 0 ? "Habis" : `Stok: ${item.stok_sistem}`;
+
+        const imageHTML = item.image
+            ? `<div class="pos-menu-emoji" style="padding:0; overflow:hidden;">
+                <img src="${item.image}" alt="${item.name}" 
+                     style="width:100%; height:100%; object-fit:cover; border-radius:10px; display:block;"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <span style="display:none; width:100%; height:100%; align-items:center; justify-content:center; font-size:2rem;">${item.emoji}</span>
+               </div>`
+            : `<div class="pos-menu-emoji">${item.emoji}</div>`;
         
         div.innerHTML = `
-            <div class="pos-menu-emoji">${item.emoji}</div>
+            ${imageHTML}
             <div class="pos-menu-name">${item.name}</div>
             <div class="pos-menu-price">${formatRupiah(item.price)}</div>
             <div class="pos-menu-stock ${stockClass}">${stockText}</div>
         `;
         
+        if (item.stok_sistem <= 0) div.style.opacity = "0.5";
         div.addEventListener("click", () => addPOSCartItem(item.id));
         posMenuGridContainer.appendChild(div);
     });
