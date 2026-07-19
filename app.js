@@ -480,14 +480,26 @@ async function submitOrder() {
         source: "online"
     };
 
+    let saveOk = false;
+    let saveError = "";
     try {
-        await db.saveTransaction(transaction);
+        const result = await db.saveTransaction(transaction);
+        if (result && result.success) {
+            saveOk = true;
+        } else {
+            saveError = result ? JSON.stringify(result) : "Tidak ada response";
+        }
     } catch (err) {
-        console.error("Gagal menyimpan pesanan:", err);
+        saveError = err.message || String(err);
+    }
+
+    if (!saveOk) {
+        alert("⚠️ Pesanan gagal disimpan ke server!\nError: " + saveError + "\n\nPesanan tetap tercatat di perangkat ini.");
     }
 
     // Tampilkan struk konfirmasi
     showOrderSuccess(name, orderItems, totalSum, paymentMethod, note);
+
 
     // Reset cart
     cart = {};
