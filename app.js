@@ -468,15 +468,16 @@ async function submitOrder() {
     sendWhatsappBtn.disabled = true;
     sendWhatsappBtn.textContent = "⏳ Memproses...";
 
+    const now = new Date();
     const transaction = {
-        customer_name: name,
-        items: JSON.stringify(orderItems),
-        total: totalSum,
-        payment_method: paymentMethod,
-        note: note,
+        tanggal: now.toISOString().split("T")[0],
+        jam: now.toTimeString().split(" ")[0],
+        items: orderItems,
+        total_harga: totalSum,
+        pembayaran: paymentMethod,
+        note: `[${name}]${note ? " — " + note : ""}`,
         status: "pending",
-        source: "online",
-        timestamp: new Date().toISOString()
+        source: "online"
     };
 
     try {
